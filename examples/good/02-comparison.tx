@@ -1,0 +1,20 @@
+fun main(): Void {
+  printBool(1 > 2);
+  printBool(1 <= 2);
+
+  printBool(1 >= 2);
+  printBool(1 <= 2);
+
+  printBool(1 == 1);
+  printBool(1 == 2);
+  printBool(1 != 1);
+  printBool(1 != 2);
+
+  printBool((1 + 1) != 11);
+  printBool((1 + 1) == 2);
+
+  printBool((1 + 1 + 1) > 10);
+  printBool((1 + 1 + 1) <= 10);
+
+  return;
+}

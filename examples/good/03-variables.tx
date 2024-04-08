@@ -1,0 +1,11 @@
+fun main(): Void {
+  var a: Int = 3;
+  var b: Bool = True;
+  val c: String = "tomato";
+
+  printInt(a);
+  printBool(b);
+  printString(c);
+  
+  return;
+}

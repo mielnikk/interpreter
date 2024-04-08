@@ -1,0 +1,9 @@
+fun main(): Void {
+  printInt(4 ++ 2);
+  printInt(4 -- 2);
+  printInt(4 *** 2);
+  printInt(4 // 2);
+  printInt(4 %* 2);
+
+  return;
+}

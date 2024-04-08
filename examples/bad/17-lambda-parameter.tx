@@ -1,0 +1,9 @@
+fun main(): Void {
+  printInt(test(lambda (a: Int) => return a + 1; }));
+
+  return;
+}
+
+fun test(f: (Int) -> Int): Int {
+  return f(42);
+}

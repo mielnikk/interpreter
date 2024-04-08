@@ -1,0 +1,8 @@
+fun main(): Void {
+  val a: Int = 42;
+  var b = True;
+  var c: Bool = ;
+  var d: String "Hi";
+
+  return;
+}

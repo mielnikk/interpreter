@@ -1,0 +1,12 @@
+fun main(): Void {
+
+  fun test(b: Int): Int {
+    return b;
+  }
+
+  var a: (Int) -> Int = test;
+
+  printInt(a(1));
+
+  return;
+}

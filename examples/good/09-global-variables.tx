@@ -1,0 +1,13 @@
+fun test(): Int {
+  return 1;
+}
+
+var a: Int = test();
+var b: Int = 2;
+
+fun main(): Void {
+  printInt(a);
+  printInt(b);
+  
+  return;
+}

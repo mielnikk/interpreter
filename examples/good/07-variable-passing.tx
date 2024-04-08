@@ -1,0 +1,23 @@
+fun testVariable(var string: String): Void {
+  printString(string);
+  string = "Hello";
+
+  return;
+}
+
+fun test(string: String): Void {
+  printString(string);
+
+  return;
+}
+
+fun main(): Void {
+  var a: String = "Hi";
+  testVariable(a); 
+  printString(a);
+
+  var b: String = "Hi";
+  test(b);
+  
+  return;
+}

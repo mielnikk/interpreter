@@ -1,0 +1,9 @@
+fun main(): Void {
+  var a: Int = 1;
+  while(a <= 3) {
+    printInt(a);
+    a++;
+  }
+
+  return;
+}

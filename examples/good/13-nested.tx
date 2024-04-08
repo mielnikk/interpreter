@@ -1,0 +1,13 @@
+fun test(): Int {
+  fun test1(): Int {
+    return 42;
+  }
+
+  return test1();
+}
+
+fun main(): Void {
+  printInt(test());
+
+  return;
+}

@@ -1,0 +1,19 @@
+fun main(): Void {
+  var a: Int = 1;
+  a = 2;
+  printInt(a);
+  a++;
+  printInt(a);
+  a--;
+  printInt(a);
+
+  var b: Bool = True;
+  b = False;
+  printBool(b);
+
+  var c: String = "tomato";
+  c = "ketchup";
+  printString(c);
+
+  return;
+}

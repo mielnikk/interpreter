@@ -1,0 +1,11 @@
+fun main(): Void {
+  printBool(True || False);
+  printBool(True && False);
+
+  printBool(!True);
+  printBool(!False);
+
+  printBool(4 >= 2 || 3 != 2);
+
+  return;
+}

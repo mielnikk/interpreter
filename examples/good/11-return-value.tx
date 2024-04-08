@@ -1,0 +1,9 @@
+fun test(): Int {
+  return 1;
+}
+
+fun main(): Void {
+  printInt(test());
+  
+  return;
+}

@@ -1,0 +1,13 @@
+fun main(): Void {
+  if(True) {
+    printString("true");
+  }
+
+  if(False) {
+    printString("false");
+  } else {
+    printString("true");
+  }
+
+  return;
+}

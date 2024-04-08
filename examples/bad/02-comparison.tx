@@ -1,0 +1,13 @@
+fun main(): Void {
+  printInt(1 <=== 2);
+  printInt(1 << 2);
+
+  printInt(1 >>= 2);
+  printInt(1 >< 2);
+
+  printInt(1 === 2);
+  printInt(1 ==! 1);
+  printInt(1 !=! 2);
+
+  return;
+}

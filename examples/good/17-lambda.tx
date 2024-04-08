@@ -1,0 +1,15 @@
+fun test(f: (Int) -> Int): Int {
+  return f(22);
+}
+
+fun main(): Void {
+  var a: (Int) -> Int = lambda (parameter: Int): Int => {
+    return parameter + 1;
+  };
+
+  printInt(a(1));
+
+  printInt(test(lambda (parameter: Int): Int => {return parameter + 1; }));
+
+  return;
+}
