@@ -1,9 +1,9 @@
 fun main(): Void {
-  printBool(True || False);
-  printBool(True && False);
+  printBool(true || false);
+  printBool(true && false);
 
-  printBool(!True);
-  printBool(!False);
+  printBool(!true);
+  printBool(!false);
 
   printBool(4 >= 2 || 3 != 2);
 

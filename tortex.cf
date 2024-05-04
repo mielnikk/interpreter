@@ -52,7 +52,7 @@ TInt.       Type ::= "Int" ;
 
 TStr.       Type ::= "String" ;
 
-TBool.      Type ::= "Boolean" ;
+TBool.      Type ::= "Bool" ;
 
 TVoid.      Type ::= "Void" ;
 
@@ -68,9 +68,9 @@ EVar.      Expr6 ::= Ident ;
 
 ELitInt.   Expr6 ::= Integer ;
 
-ELitTrue.  Expr6 ::= "True" ;
+ELitTrue.  Expr6 ::= "true" ;
 
-ELitFalse. Expr6 ::= "False" ;
+ELitFalse. Expr6 ::= "false" ;
 
 EApp.      Expr6 ::= Ident "(" [Expr] ")" ;
 

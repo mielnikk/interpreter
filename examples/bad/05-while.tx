@@ -1,5 +1,5 @@
 fun main(): Void {
-  while(True)
+  while(true)
     printString("infinity");
 
 

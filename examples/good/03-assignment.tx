@@ -7,9 +7,9 @@ fun main(): Void {
   a--;
   printInt(a);
 
-  var b: Bool = True;
-  b = False;
-  printBool(b);
+  var b: Bool = true;
+  b = false;
+  printBool(b); 
 
   var c: String = "tomato";
   c = "ketchup";

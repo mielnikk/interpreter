@@ -1,6 +1,6 @@
 fun main(): Void {
   var a: Int = 3;
-  var b: Bool = True;
+  var b: Bool = true;
   val c: String = "tomato";
 
   printInt(a);

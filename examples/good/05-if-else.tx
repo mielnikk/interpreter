@@ -1,9 +1,9 @@
 fun main(): Void {
-  if(True) {
+  if(true) {
     printString("true");
   }
 
-  if(False) {
+  if(false) {
     printString("false");
   } else {
     printString("true");
