@@ -6,7 +6,7 @@
 {-# OPTIONS_GHC -fno-warn-incomplete-patterns -fno-warn-overlapping-patterns #-}
 {-# LANGUAGE PatternSynonyms #-}
 
-module ParTortex
+module Lexer.ParTortex
   ( happyError
   , myLexer
   , pProgram
@@ -14,8 +14,8 @@ module ParTortex
 
 import Prelude
 
-import qualified AbsTortex
-import LexTortex
+import qualified Lexer.AbsTortex as AbsTortex
+import Lexer.LexTortex
 import qualified Data.Array as Happy_Data_Array
 import qualified Data.Bits as Bits
 import qualified GHC.Exts as Happy_GHC_Exts

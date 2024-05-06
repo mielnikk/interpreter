@@ -7,7 +7,7 @@
 
 {-# LANGUAGE PatternSynonyms #-}
 
-module LexTortex where
+module Lexer.LexTortex where
 
 import Prelude
 

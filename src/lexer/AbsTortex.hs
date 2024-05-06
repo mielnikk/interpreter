@@ -4,7 +4,7 @@
 
 -- | The abstract syntax of language tortex.
 
-module AbsTortex where
+module Lexer.AbsTortex where
 
 import Prelude (Integer, String)
 import qualified Prelude as C (Eq, Ord, Show, Read)
