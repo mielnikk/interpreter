@@ -14,7 +14,7 @@ module Lexer.ParTortex
 
 import Prelude
 
-import qualified Lexer.AbsTortex as AbsTortex
+import qualified Syntax.AbsTortex as AbsTortex
 import Lexer.LexTortex
 import qualified Data.Array as Happy_Data_Array
 import qualified Data.Bits as Bits

@@ -7,4 +7,4 @@ interpretFile :: FilePath -> IO ()
 interpretFile file = readFile file >>= interpret
 
 interpret :: String -> IO ()
-interpret program = print 
+interpret program = print "DUPA"

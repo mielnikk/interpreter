@@ -42,7 +42,7 @@ maintainer:         kasia.a.mielnik@gmail.com
 build-type:         Simple
 
 -- Extra doc files to be distributed with the package, such as a CHANGELOG or a README.
-extra-doc-files:    CHANGELOG.md
+-- extra-doc-files:
 
 -- Extra source files to be distributed with the package, such as examples, or a tutorial module.
 -- extra-source-files:
@@ -56,9 +56,12 @@ library
 
     -- Modules exported by the library.
     exposed-modules:  
+        Interpreter
         Lexer.LexTortex
         Lexer.ParTortex
-        Lexer.AbsTortex
+        Syntax.AbsTortex
+        Typechecker.Environment
+        Typechecker.Error
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -69,7 +72,8 @@ library
     -- Other library packages from which modules are imported.
     build-depends:    
         array, 
-        base ^>=4.15.1.0
+        base ^>=4.15.1.0,
+        containers
 
     -- Directories containing source files.
     hs-source-dirs:   src
