@@ -1,12 +1,13 @@
 {-# LANGUAGE RecordWildCards #-}
-module Typechecker.Environment where
-import qualified Data.Map as M
+module TypeChecker.Environment where
+import           Data.Map (Map)
+import qualified Data.Map as Map
 import Syntax.AbsTortex
 import Typechecker.Error
 
-data Environment = Environment {types :: M.Map Ident Type, returnType :: Type}
+data Environment = Environment {types :: Map Ident Type, returnType :: Type}
 
-emptyEnvironment = Environment { types = M.fromList builtinMethodsSignatures, returnType = TVoid }
+-- emptyEnvironment = Environment { types = Map.fromList builtinMethodsSignatures, returnType = TVoid }
 
 builtinMethodsSignatures :: [(Ident, Type)]
 builtinMethodsSignatures = [
@@ -21,7 +22,10 @@ updateEnvironmentTypes :: Environment -> [(Ident, Type)] -> Environment
 updateEnvironmentTypes = foldl updateEnvironmentType
 
 updateEnvironmentType :: Environment -> (Ident, Type) -> Environment
-updateEnvironmentType Environment{..} (id, t) = Environment { types = M.insert id t types, returnType = returnType }
+updateEnvironmentType Environment{..} (ident, t) = Environment { types = Map.insert ident t types, returnType = returnType }
 
 updateEnvironmentReturnType :: Environment -> Type -> Environment
 updateEnvironmentReturnType Environment{..} t = Environment { types = types, returnType = t }
+
+lookupIdent :: Ident -> Environment -> Maybe Type
+lookupIdent ident environment = Map.lookup ident (types environment)

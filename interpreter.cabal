@@ -60,8 +60,10 @@ library
         Lexer.LexTortex
         Lexer.ParTortex
         Syntax.AbsTortex
-        Typechecker.Environment
-        Typechecker.Error
+        TypeChecker.Environment
+        TypeChecker.Error
+        TypeChecker.Typechecker
+        TypeChecker.Utils
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -73,7 +75,8 @@ library
     build-depends:    
         array, 
         base ^>=4.15.1.0,
-        containers
+        containers,
+        mtl
 
     -- Directories containing source files.
     hs-source-dirs:   src
