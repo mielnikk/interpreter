@@ -1,3 +1,3 @@
-module Typechecker.Error where
+module TypeChecker.Error where
 
-data TypeError = Error1 | Error2
+data TypeError = DuplicatedNameError | Error2

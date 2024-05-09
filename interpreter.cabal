@@ -62,8 +62,9 @@ library
         Syntax.AbsTortex
         TypeChecker.Environment
         TypeChecker.Error
-        TypeChecker.Typechecker
-        TypeChecker.Utils
+        TypeChecker.TypeChecker
+        TypeChecker.Utils.Utils
+        TypeChecker.Utils.Monads
 
     -- Modules included in this library but not exported.
     -- other-modules:
