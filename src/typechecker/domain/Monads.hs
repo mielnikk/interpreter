@@ -1,10 +1,10 @@
-module TypeChecker.Utils.Monads where
+module TypeChecker.Domain.Monads where
 
 import Control.Monad.Except
 import Control.Monad.Reader
 import Control.Monad.State
 import Syntax.AbsTortex
-import TypeChecker.Environment
+import TypeChecker.Domain.Environment
 import TypeChecker.Error
 
 type TypeReaderT' a = ReaderT Environment (Except TypeError) a

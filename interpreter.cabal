@@ -60,11 +60,13 @@ library
         Lexer.LexTortex
         Lexer.ParTortex
         Syntax.AbsTortex
-        TypeChecker.Environment
+        Syntax.Utils
+        TypeChecker.Domain.Environment
         TypeChecker.Error
         TypeChecker.TypeChecker
-        TypeChecker.Utils.Utils
-        TypeChecker.Utils.Monads
+        TypeChecker.Utils.TypeChecker
+        TypeChecker.Utils.TypeReader
+        TypeChecker.Domain.Monads
 
     -- Modules included in this library but not exported.
     -- other-modules:
