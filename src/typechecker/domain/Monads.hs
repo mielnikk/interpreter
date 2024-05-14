@@ -9,7 +9,7 @@ import TypeChecker.Error
 
 type TypeReaderT' a = ReaderT Environment (Except TypeError) a
 
-type EmptyTypeReaderT' a = ReaderT Environment (Except TypeError) a
+type EmptyTypeReaderT' = ReaderT Environment (Except TypeError) ()
 
 type TypeReaderT = TypeReaderT' Type
 

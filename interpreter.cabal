@@ -79,7 +79,8 @@ library
         array, 
         base ^>=4.15.1.0,
         containers,
-        mtl
+        mtl, 
+        hlint
 
     -- Directories containing source files.
     hs-source-dirs:   src

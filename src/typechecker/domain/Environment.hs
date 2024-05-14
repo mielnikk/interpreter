@@ -7,7 +7,7 @@ import qualified Data.Map as Map
 import Syntax.AbsTortex
 import TypeChecker.Error
 
-data Environment = Environment {types :: Map Ident Type}
+data Environment = Environment {types :: Map Ident Type, returnStatementOccuredFlag :: Bool}
 
 -- emptyEnvironment = Environment { types = Map.fromList builtinMethodsSignatures, returnType = TVoid }
 
@@ -22,10 +22,10 @@ updateEnvironmentTypes :: Environment -> [(Ident, Type)] -> Environment
 updateEnvironmentTypes = foldl updateEnvironmentType
 
 updateEnvironmentType :: Environment -> (Ident, Type) -> Environment
-updateEnvironmentType Environment {..} (ident, t) = Environment {types = Map.insert ident t types}
+updateEnvironmentType Environment {..} (ident, t) = Environment {types = Map.insert ident t types, returnStatementOccuredFlag = returnStatementOccuredFlag}
 
-updateEnvironmentReturnType :: Environment -> Type -> Environment
-updateEnvironmentReturnType Environment {..} t = Environment {types = types}
+updateEnvironmentReturnFlag :: Environment -> Bool -> Environment
+updateEnvironmentReturnFlag Environment {..} flag = Environment {types = types, returnStatementOccuredFlag = flag}
 
 lookupIdent :: Ident -> Environment -> Maybe Type
 lookupIdent ident environment = Map.lookup ident (types environment)
