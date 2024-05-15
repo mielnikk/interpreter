@@ -4,6 +4,9 @@ module TypeChecker.Utils.TypeChecker
     assertExpressionTypeOrThrow,
     assertVariableTypeOrThrow,
     assertTypesOrThrow,
+    assertOrThrow,
+    checkUniqueArguments,
+    assertValidLambdaBodyOrThrow,
   )
 where
 
@@ -18,10 +21,10 @@ import TypeChecker.Domain.Monads
 import TypeChecker.Error
 import qualified TypeChecker.Utils.TypeReader as TR
 
-assertVariableTypeOrThrow :: TypeReader a => Environment -> Type -> a -> TypeCheckerT
-assertVariableTypeOrThrow env expectedType name = do
+assertVariableTypeOrThrow :: Type -> Ident -> TypeCheckerT
+assertVariableTypeOrThrow expectedType name = do
   env <- get
-  case readType env name of
+  case lookupIdent name env of
     Just variableType -> assertTypesOrThrow expectedType variableType (InvalidTypeError expectedType variableType)
     Nothing -> throwError $ UnknownIdentifierError name
 
@@ -68,3 +71,9 @@ assertTypesOrThrow expected actual = assertOrThrow ((==) expected actual)
 assertOrThrow :: Bool -> TypeError -> TypeCheckerT
 assertOrThrow True _ = pure ()
 assertOrThrow False e = throwError e
+
+assertValidLambdaBodyOrThrow :: TypeChecker a => Type -> a -> TypeCheckerT
+assertValidLambdaBodyOrThrow expectedType body = do
+  checkType (Just expectedType) body
+  env <- get
+  assertOrThrow (returnStatementOccuredFlag env) MissingReturnStatementError

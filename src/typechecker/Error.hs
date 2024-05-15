@@ -9,3 +9,5 @@ data TypeError
     | InvalidTypeError Type Type 
     | MissingReturnStatementError 
     | InvalidReturnTypeError Type
+    | MissingArgumentError
+    | InvalidApplicationError
