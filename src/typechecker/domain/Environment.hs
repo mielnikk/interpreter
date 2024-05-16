@@ -9,7 +9,7 @@ import TypeChecker.Error
 
 data Environment = Environment {types :: Map Ident Type, returnStatementOccuredFlag :: Bool}
 
--- emptyEnvironment = Environment { types = Map.fromList builtinMethodsSignatures, returnType = TVoid }
+emptyEnvironment = Environment { types = Map.fromList builtinMethodsSignatures, returnStatementOccuredFlag = False }
 
 builtinMethodsSignatures :: [(Ident, Type)]
 builtinMethodsSignatures =

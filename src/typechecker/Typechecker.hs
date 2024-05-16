@@ -30,7 +30,7 @@ instance TypeChecker Init where
     put $ updateEnvironmentTypes functionEnv argumentsWithTypes
     checkType (Just returnType) block
     blockEnv <- get
-    TCU.assertOrThrow (returnStatementOccuredFlag env) MissingReturnStatementError
+    TCU.assertOrThrow (returnStatementOccuredFlag blockEnv) MissingReturnStatementError
     put functionEnv
     
   checkType _ (IInit name variableType expression) = do
@@ -74,7 +74,7 @@ instance TypeChecker Stmt where
 
   checkType (Just expectedType) SRetVoid = do
     env <- get
-    TCU.assertTypesOrThrow expectedType TVoid (InvalidReturnTypeError expectedType)
+    TCU.assertTypesOrThrow expectedType TVoid (InvalidReturnTypeError expectedType TVoid)
     put $ updateEnvironmentReturnFlag env True
 
   checkType Nothing SRetVoid =
@@ -138,7 +138,7 @@ instance TypeReader Expr where
 
   readType (ERel e1 _ e2) = do
     TRU.assertTypesOrThrow TInt e1 e2
-    pure TInt
+    pure TBool
 
   readType (EAnd e1 e2) = do
     TRU.assertTypesOrThrow TBool e1 e2

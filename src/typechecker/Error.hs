@@ -8,6 +8,23 @@ data TypeError
     | UnknownIdentifierError Ident 
     | InvalidTypeError Type Type 
     | MissingReturnStatementError 
-    | InvalidReturnTypeError Type
+    | InvalidReturnTypeError Type Type
     | MissingArgumentError
     | InvalidApplicationError
+
+instance Show TypeError where
+    show DuplicatedNameError = "Duplicated name"
+
+    show MismatchedTypesError = "Mismatched types"
+
+    show (UnknownIdentifierError name) = "Unknown identifier: " ++ (show name)
+
+    show (InvalidTypeError expected actual) = "Invalid type - expected: " ++ (show expected) ++ ", actual: " ++ (show actual)
+
+    show MissingReturnStatementError = "Missing return statement"
+
+    show (InvalidReturnTypeError actual expected) = "Invalid return type - expected: " ++ show expected ++ ", actual: " ++ show actual
+
+    show MissingArgumentError = "Missing argument in function call"
+
+    show InvalidApplicationError = "Cannot apply"
