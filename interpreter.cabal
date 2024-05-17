@@ -67,6 +67,14 @@ library
         TypeChecker.Utils.TypeChecker
         TypeChecker.Utils.TypeReader
         TypeChecker.Domain.Monads
+        Evaluator.Domain.Environment
+        Evaluator.Domain.Context
+        Evaluator.Domain.Store
+        Evaluator.Domain.Builtins
+        Evaluator.Domain.Error
+        Evaluator.Domain.Monads
+        Evaluator.Utils.Utils
+        Evaluator.Evaluator
 
     -- Modules included in this library but not exported.
     -- other-modules:

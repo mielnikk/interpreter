@@ -15,3 +15,11 @@ getArgumentType (PArgVar _ argType) = argType
 
 calculateFunctionType :: [Arg] -> Type -> Type
 calculateFunctionType args = TFun (map getArgumentType args)
+
+getOperation :: Ord a => RelOp -> (a -> a -> Bool)
+getOperation LTH = (<)
+getOperation LE = (<=)
+getOperation GTH = (>)
+getOperation GE = (>=)
+getOperation EQU = (==)
+getOperation NE = (/=)

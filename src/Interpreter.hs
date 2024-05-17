@@ -15,9 +15,9 @@ interpretFile file = readFile file >>= interpret
 interpret :: String -> IO ()
 interpret program = case pProgram (myLexer program) of
   Right p -> runTypeCheck p
-  Left _ -> putStrLn "SYNTAX CHUJ"
+  Left _ -> print "SYNTAX CHUJ"
 
 runTypeCheck :: Program -> IO ()
 runTypeCheck program = case runExcept (runStateT (checkType Nothing program) emptyEnvironment) of
-  Right _ -> putStrLn "GUT"
+  Right _ -> print "GUT"
   Left e -> print e
