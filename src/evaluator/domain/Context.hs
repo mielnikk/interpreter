@@ -33,20 +33,6 @@ insertLocation :: Ident -> Location -> Context -> Context
 insertLocation name location Context {..} =
   Context {environment = putEnvironmentLocation name location environment, store = store}
 
-putEnv :: Environment -> Context -> Context
-putEnv newEnv Context {..} =
+insertEnvironment :: Environment -> Context -> Context
+insertEnvironment newEnv Context {..} =
   Context {environment = newEnv, store = store}
-
-returnLabel = Ident "return"
-
-putReturnValue :: Context -> Context
-putReturnValue = insertValue returnLabel Dummy
-
-updateReturnValue :: Value -> Context -> Context
-updateReturnValue = updateValue returnLabel
-
-getReturnValue :: Context -> Value
-getReturnValue = getValue returnLabel
-
-isReturnNotDefined :: Context -> Bool
-isReturnNotDefined ctx = isDummy $ getValue returnLabel ctx

@@ -1,9 +1,11 @@
 module Evaluator.Utils.Utils where
 
 import Control.Monad.State
+import Control.Monad.Except
 import Evaluator.Domain.Context
 import Evaluator.Domain.Environment
 import Evaluator.Domain.Monads
+import Evaluator.Domain.Error
 import Syntax.AbsTortex
 import Prelude
 
@@ -20,7 +22,7 @@ keepEnvAndEval exec = do
   ctx <- get
   let env = environment ctx
   _ <- exec
-  modify $ putEnv env
+  modify $ insertEnvironment env
   return Dummy
 
 evalIntExpr :: Evaluator a => (Integer -> Integer -> Integer) -> a -> a -> EvaluatorT
@@ -40,3 +42,17 @@ evalIntBoolExpr f e1 e2 = do
   val1 <- eval e1
   val2 <- eval e2
   pure $ mapVIntsToVBool f val1 val2
+
+getArgumentLocation :: Expr -> EvaluatorT' Location
+getArgumentLocation (EVar name) = gets $ getLocation name
+getArgumentLocation _ = pure (-1)
+
+insertArgsToCtx :: (Arg, Value, Location) -> EvaluatorT
+insertArgsToCtx (PArg name _, value, _) = do
+  modify $ insertValue name value
+  pure Dummy
+insertArgsToCtx (PArgVar _ _, _, -1) =
+  throwError InvalidReferenceFunctionApplication
+insertArgsToCtx (PArgVar name _, _, location) = do
+  modify $ insertLocation name location
+  pure Dummy

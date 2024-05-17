@@ -6,7 +6,6 @@ import Evaluator.Domain.Context
 import Evaluator.Domain.Environment
 import Evaluator.Domain.Error
 import Evaluator.Domain.Monads
-import Evaluator.Domain.Store
 import Evaluator.Utils.Utils
 import Syntax.AbsTortex
 import Syntax.Utils (getOperation)
@@ -118,3 +117,27 @@ instance Evaluator Expr where
   eval (EAnd e1 e2) = evalBoolExpr (&&) e1 e2
  
   eval (EOr e1 e2) = evalBoolExpr (||) e1 e2
+
+  eval (ELambda arguments _ block) = gets (VFun arguments block . environment)
+
+  eval (EApp name expressions) = do 
+    ctx <- get
+    argumentVals <- mapM eval expressions
+    argumentLocs <- mapM getArgumentLocation expressions
+
+    let env = environment ctx
+    let function = getValue name ctx
+    let functionEnv = getFunctionEnvironment function
+    let functionArgs = getFunctionArgs function
+    let functionBlock = getFunctionBlock function
+
+    modify $ insertEnvironment functionEnv
+    modify $ insertValue name function
+    modify putReturnValue
+
+    mapM_ insertArgsToCtx (zip3 functionArgs argumentVals argumentLocs)
+
+    returnValue <- eval functionBlock
+
+    modify $ insertEnvironment env
+    pure returnValue

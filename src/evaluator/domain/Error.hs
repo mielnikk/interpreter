@@ -4,7 +4,7 @@ import Syntax.AbsTortex
 import Evaluator.Domain.Environment(Value)
 
 data EvaluationError
-  =  ReturnCalled Value | SomeError | DivideByZeroError
+  =  ReturnCalled Value | SomeError | DivideByZeroError | InvalidReferenceFunctionApplication
 
 instance Show EvaluationError where
   show SomeError = "Unknown error"
