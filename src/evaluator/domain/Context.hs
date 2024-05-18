@@ -23,15 +23,15 @@ insertValue :: Ident -> Value -> Context -> Context
 insertValue name value Context {..} =
   Context {environment = newEnv, store = newStore}
   where
-    (newLocation, newStore) = insertStoreValue value store
-    newEnv = putEnvironmentLocation name newLocation environment
+    (location, newStore) = insertStoreValue value store
+    newEnv = insertEnvironmentLocation name location environment
 
 getLocation :: Ident -> Context -> Location
 getLocation name Context {..} = getEnvironmentLocation name environment
 
 insertLocation :: Ident -> Location -> Context -> Context
 insertLocation name location Context {..} =
-  Context {environment = putEnvironmentLocation name location environment, store = store}
+  Context {environment = insertEnvironmentLocation name location environment, store = store}
 
 insertEnvironment :: Environment -> Context -> Context
 insertEnvironment newEnv Context {..} =

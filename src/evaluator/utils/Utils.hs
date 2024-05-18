@@ -6,6 +6,7 @@ import Evaluator.Domain.Context
 import Evaluator.Domain.Environment
 import Evaluator.Domain.Monads
 import Evaluator.Domain.Error
+import Evaluator.Domain.Builtins
 import Syntax.AbsTortex
 import Prelude
 
@@ -56,3 +57,8 @@ insertArgsToCtx (PArgVar _ _, _, -1) =
 insertArgsToCtx (PArgVar name _, _, location) = do
   modify $ insertLocation name location
   pure Dummy
+
+evalIfBuiltin :: Evaluator a => Ident -> [a] -> EvaluatorT -> EvaluatorT
+evalIfBuiltin name expressions evaluator = do
+  argumentVals <- mapM eval expressions
+  if isBuiltin name then evalBuiltin name argumentVals else evaluator

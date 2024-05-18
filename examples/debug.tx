@@ -1,0 +1,24 @@
+fun testVariable(var string: String): Void {
+  printString(string);
+  string = "Hello";
+
+  return;
+}
+
+fun test(string: String): Void {
+  printString(string);
+
+  return;
+}
+
+fun testPass(dupa: Int): Void {
+    dupa = 1;
+    return;
+}
+
+fun main(): Void {
+  var a: Int = 2;
+  testPass(a);
+  
+  return;
+}

@@ -66,6 +66,6 @@ emptyEnvironment = Environment {_environment = Map.empty}
 getEnvironmentLocation :: Ident -> Environment -> Location
 getEnvironmentLocation name Environment {..} = fromJust $ Map.lookup name _environment
 
-putEnvironmentLocation :: Ident -> Location -> Environment -> Environment
-putEnvironmentLocation name location Environment {..} =
+insertEnvironmentLocation :: Ident -> Location -> Environment -> Environment
+insertEnvironmentLocation name location Environment {..} =
   Environment {_environment = Map.insert name location _environment}

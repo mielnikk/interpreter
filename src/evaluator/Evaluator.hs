@@ -120,7 +120,7 @@ instance Evaluator Expr where
 
   eval (ELambda arguments _ block) = gets (VFun arguments block . environment)
 
-  eval (EApp name expressions) = do 
+  eval (EApp name expressions) = evalIfBuiltin name expressions $ do 
     ctx <- get
     argumentVals <- mapM eval expressions
     argumentLocs <- mapM getArgumentLocation expressions
@@ -133,7 +133,6 @@ instance Evaluator Expr where
 
     modify $ insertEnvironment functionEnv
     modify $ insertValue name function
-    modify putReturnValue
 
     mapM_ insertArgsToCtx (zip3 functionArgs argumentVals argumentLocs)
 

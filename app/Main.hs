@@ -5,11 +5,9 @@ import System.Environment (getArgs)
 import System.Exit (exitFailure)
 import Prelude
   ( IO,
-    getContents,
     putStrLn,
     unlines,
     ($),
-    (>>=),
   )
 
 main :: IO ()
@@ -18,7 +16,6 @@ main = do
   case args of
     ["--help"] -> usage
     [f] -> interpretFile f
-    [] -> interpretStdin
     _ -> invalidUsage
 
 usage :: IO ()
@@ -27,14 +24,9 @@ usage = do
     unlines
       [ "usage: Call with one of the following argument combinations:",
         "  --help          Display this help message.",
-        "  (no arguments)  Parse standard input.",
         "  (file)         Parse content of the file."
       ]
   exitFailure
-
-interpretStdin :: IO ()
-interpretStdin = do
-  getContents >>= interpret
 
 invalidUsage :: IO ()
 invalidUsage = do

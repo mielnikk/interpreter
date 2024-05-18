@@ -17,4 +17,4 @@ evalBuiltin :: Ident -> [Value] -> EvaluatorT
 evalBuiltin _ [value] = do
   liftIO $ putStrLn (show value)
   pure Dummy
-evalBuiltin _ _ = throwError $ SomeError
+evalBuiltin _ _ = throwError SomeError
