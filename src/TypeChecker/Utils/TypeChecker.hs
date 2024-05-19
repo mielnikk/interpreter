@@ -13,7 +13,6 @@ where
 import Control.Monad.Except
 import Control.Monad.Reader
 import Control.Monad.State
-import Data.Set (Set)
 import qualified Data.Set as Set
 import Syntax.AbsTortex
 import TypeChecker.Domain.Environment

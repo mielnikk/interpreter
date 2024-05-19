@@ -2,7 +2,6 @@ module TypeChecker.Utils.TypeReader where
 
 import Control.Monad.Except
 import Control.Monad.Reader
-import Data.Set (Set)
 import qualified Data.Set as Set
 import Syntax.AbsTortex
 import TypeChecker.Domain.Environment
@@ -29,9 +28,9 @@ assertOrThrow True _ = pure ()
 assertOrThrow False e = throwError e
 
 getExistingSymbolOrThrow :: Ident -> TypeError -> TypeReaderT
-getExistingSymbolOrThrow name error = do
+getExistingSymbolOrThrow name err = do
   symbolType <- asks (lookupIdent name)
-  maybe (throwError error) return symbolType
+  maybe (throwError err) return symbolType
 
 assertValidArgumentsOrThrow :: [Arg] -> EmptyTypeReaderT'
 assertValidArgumentsOrThrow args = either throwError return $ checkUniqueArguments args

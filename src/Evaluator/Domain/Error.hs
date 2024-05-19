@@ -1,6 +1,5 @@
 module Evaluator.Domain.Error where
 
-import Syntax.AbsTortex
 import Evaluator.Domain.Value(Value)
 
 data EvaluationError

@@ -5,10 +5,10 @@ module TypeChecker.Domain.Environment where
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Syntax.AbsTortex
-import TypeChecker.Error
 
 data Environment = Environment {types :: Map Ident Type, returnStatementOccuredFlag :: Bool}
 
+emptyEnvironment :: Environment
 emptyEnvironment = Environment { types = Map.fromList builtinMethodsSignatures, returnStatementOccuredFlag = False }
 
 builtinMethodsSignatures :: [(Ident, Type)]
