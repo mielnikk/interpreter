@@ -48,7 +48,7 @@ build-type:         Simple
 -- extra-source-files:
 
 common warnings
-    ghc-options: -Wall -fllvm
+    ghc-options: -Wall -Wno-orphans
 
 library
     -- Import common warning flags.
@@ -92,7 +92,7 @@ library
         hlint
 
     -- Directories containing source files.
-    hs-source-dirs:   src
+    hs-source-dirs:   src/interpreter
 
     -- Base language which the package is written in.
     default-language: Haskell2010
@@ -101,6 +101,8 @@ library
 executable interpreter
     -- Import common warning flags.
     import:           warnings
+
+    ghc-options: -Wno-orphans
 
     -- .hs or .lhs file containing the Main module.
     main-is:          Main.hs
@@ -114,10 +116,13 @@ executable interpreter
     -- Other library packages from which modules are imported.
     build-depends:
         base ^>=4.15.1.0,
-        interpreter
+        interpreter,
+        array,
+        mtl,
+        containers
 
     -- Directories containing source files.
-    hs-source-dirs:   app
+    hs-source-dirs:   src
 
     -- Base language which the package is written in.
     default-language: Haskell2010

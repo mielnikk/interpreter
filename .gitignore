@@ -3,3 +3,4 @@ test
 .vscode
 .stack-work
 .DS_STORE
+dist-newstyle
