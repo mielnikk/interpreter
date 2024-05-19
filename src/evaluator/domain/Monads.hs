@@ -3,9 +3,8 @@ module Evaluator.Domain.Monads where
 import Control.Monad.Except
 import Control.Monad.State
 import Evaluator.Domain.Context
-import Evaluator.Domain.Environment
 import Evaluator.Domain.Error
-import Syntax.AbsTortex
+import Evaluator.Domain.Value (Value)
 import Prelude
 
 type EvaluatorT = EvaluatorT' Value

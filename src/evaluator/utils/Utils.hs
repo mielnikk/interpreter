@@ -3,8 +3,9 @@ module Evaluator.Utils.Utils where
 import Control.Monad.Except
 import Control.Monad.State
 import Evaluator.Domain.Builtins
-import Evaluator.Domain.Context
+import qualified Evaluator.Domain.Context as Context
 import Evaluator.Domain.Environment
+import Evaluator.Domain.Value
 import Evaluator.Domain.Error
 import Evaluator.Domain.Monads
 import Syntax.AbsTortex
@@ -13,17 +14,17 @@ import Prelude
 evalIntStmt :: (Integer -> Integer) -> Ident -> EvaluatorT
 evalIntStmt f name = do
   ctx <- get
-  let value = getValue name ctx
+  let value = Context.getValue name ctx
   let newValue = mapVInt f value
-  modify $ updateValue name newValue
+  modify $ Context.updateValue name newValue
   return Dummy
 
 evalRollbackEnv :: EvaluatorT -> EvaluatorT
 evalRollbackEnv evaluator = do
   ctx <- get
-  let env = environment ctx
+  let env = Context.environment ctx
   _ <- evaluator
-  modify $ insertEnvironment env
+  modify $ Context.insertEnvironment env
   return Dummy
 
 evalIntExpr :: Evaluator a => (Integer -> Integer -> Integer) -> a -> a -> EvaluatorT
@@ -45,17 +46,17 @@ evalIntBoolExpr f e1 e2 = do
   pure $ mapVIntsToVBool f val1 val2
 
 getArgumentLocation :: Expr -> EvaluatorT' Location
-getArgumentLocation (EVar name) = gets $ getLocation name
+getArgumentLocation (EVar name) = gets $ Context.getLocation name
 getArgumentLocation _ = pure (-1)
 
 insertArgsToCtx :: (Arg, Value, Location) -> EvaluatorT
 insertArgsToCtx (PArg name _, value, _) = do
-  modify $ insertValue name value
+  modify $ Context.insertValue name value
   pure Dummy
 insertArgsToCtx (PArgVar _ _, _, -1) =
   throwError InvalidReferenceFunctionApplication
 insertArgsToCtx (PArgVar name _, _, location) = do
-  modify $ insertLocation name location
+  modify $ Context.insertLocation name location
   pure Dummy
 
 evalWithBuiltinCheck :: Evaluator a => Ident -> [a] -> EvaluatorT -> EvaluatorT

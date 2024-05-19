@@ -73,6 +73,7 @@ library
         Evaluator.Domain.Builtins
         Evaluator.Domain.Error
         Evaluator.Domain.Monads
+        Evaluator.Domain.Value
         Evaluator.Utils.Utils
         Evaluator.Evaluator
 

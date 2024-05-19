@@ -2,8 +2,8 @@ module Evaluator.Evaluator where
 
 import Control.Monad.Except
 import Control.Monad.State
-import Evaluator.Domain.Context
-import Evaluator.Domain.Environment
+import qualified Evaluator.Domain.Context as Context
+import Evaluator.Domain.Value 
 import Evaluator.Domain.Error
 import Evaluator.Domain.Monads
 import Evaluator.Utils.Utils
@@ -11,7 +11,7 @@ import Syntax.AbsTortex
 import Syntax.Utils (getOperation)
 
 runEvaluate :: Program -> IO (Either EvaluationError Value)
-runEvaluate program = runExceptT $ evalStateT (eval program) emptyContext
+runEvaluate program = runExceptT $ evalStateT (eval program) Context.empty
 
 instance Evaluator Program where
   eval (PProgram inits) = do
@@ -21,13 +21,13 @@ instance Evaluator Program where
 instance Evaluator Init where
   eval (IFnDef name arguments _ block) = do
     ctx <- get
-    let functionType = VFun arguments block (environment ctx)
-    modify $ insertValue name functionType
+    let functionType = VFun arguments block (Context.environment ctx)
+    modify $ Context.insertValue name functionType
     pure Dummy
  
   eval (IInit name _ expression) = do
     exprVal <- eval expression
-    modify $ insertValue name exprVal
+    modify $ Context.insertValue name exprVal
     pure Dummy
 
 instance Evaluator Block where
@@ -49,7 +49,7 @@ instance Evaluator Stmt where
  
   eval (SAss name expression) = do
     expressionVal <- eval expression
-    modify $ updateValue name expressionVal
+    modify $ Context.updateValue name expressionVal
     return Dummy
  
   eval (SIncr name) = do
@@ -75,13 +75,12 @@ instance Evaluator Stmt where
  
   eval while@(SWhile expression block) = do
     expressionVal <- eval expression
-    evalRollbackEnv $
-      if isTrue expressionVal then eval block >> eval while else return Dummy
+    evalRollbackEnv $ if isTrue expressionVal then eval block >> eval while else return Dummy
  
   eval (SExp expression) = eval expression
 
 instance Evaluator Expr where
-  eval (EVar name) = gets $ getValue name
+  eval (EVar name) = gets $ Context.getValue name
  
   eval (ELitInt value) = pure $ VInt value
  
@@ -117,25 +116,25 @@ instance Evaluator Expr where
  
   eval (EOr e1 e2) = evalBoolExpr (||) e1 e2
 
-  eval (ELambda arguments _ block) = gets (VFun arguments block . environment)
+  eval (ELambda arguments _ block) = gets (VFun arguments block . Context.environment)
 
   eval (EApp name expressions) = evalWithBuiltinCheck name expressions $ do 
     ctx <- get
     argumentVals <- mapM eval expressions
     argumentLocs <- mapM getArgumentLocation expressions
 
-    let env = environment ctx
-    let function = getValue name ctx
+    let env = Context.environment ctx
+    let function = Context.getValue name ctx
     let functionEnv = getFunctionEnvironment function
     let functionArgs = getFunctionArgs function
     let functionBlock = getFunctionBlock function
 
-    modify $ insertEnvironment functionEnv
-    modify $ insertValue name function
+    modify $ Context.insertEnvironment functionEnv
+    modify $ Context.insertValue name function
 
     mapM_ insertArgsToCtx (zip3 functionArgs argumentVals argumentLocs)
 
     returnValue <- eval functionBlock
 
-    modify $ insertEnvironment env
+    modify $ Context.insertEnvironment env
     pure returnValue
