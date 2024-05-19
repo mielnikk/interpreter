@@ -63,7 +63,7 @@ checkUniqueIdents :: [Ident] -> Either TypeError ()
 checkUniqueIdents = fmap (const ()) . foldl (\acc x -> acc >>= tryInsert x) (Right Set.empty)
   where
     tryInsert e set =
-      if Set.member e set then Left (DuplicatedNameError e) else Right (Set.insert e set)
+      if Set.member e set then Left DuplicatedNameError else Right (Set.insert e set)
 
 assertTypesOrThrow :: Eq a => a -> a -> TypeError -> TypeCheckerT
 assertTypesOrThrow expected actual = assertOrThrow ((==) expected actual)

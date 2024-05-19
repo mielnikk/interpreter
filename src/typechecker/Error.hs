@@ -3,8 +3,8 @@ module TypeChecker.Error where
 import Syntax.AbsTortex
 
 data TypeError 
-    = DuplicatedNameError Ident  
-    | MismatchedTypeError Type 
+    = DuplicatedNameError 
+    | MismatchedTypesError 
     | UnknownIdentifierError Ident 
     | InvalidTypeError Type Type 
     | MissingReturnStatementError 
@@ -13,13 +13,13 @@ data TypeError
     | InvalidApplicationError
 
 instance Show TypeError where
-    show (DuplicatedNameError name) = "Duplicated name: " ++ show name
+    show DuplicatedNameError = "Duplicated name"
 
-    show (MismatchedTypeError actual) = "Mismatched  types: operator does not apply to " ++ show actual
+    show MismatchedTypesError = "Mismatched types"
 
-    show (UnknownIdentifierError name) = "Unknown identifier: " ++ show name
+    show (UnknownIdentifierError name) = "Unknown identifier: " ++ (show name)
 
-    show (InvalidTypeError expected actual) = "Invalid type - expected: " ++ show expected ++ ", actual: " ++ show actual
+    show (InvalidTypeError expected actual) = "Invalid type - expected: " ++ (show expected) ++ ", actual: " ++ (show actual)
 
     show MissingReturnStatementError = "Missing return statement"
 
