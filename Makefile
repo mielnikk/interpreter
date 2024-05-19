@@ -1,11 +1,9 @@
-CABAL = cabal
-
+STACK = stack
 
 all:
-	${CABAL} build 
-	mv dist/build/interpreter/interpreter interpreter
-
+	${STACK} build 
+	mv .stack-work/dist/x86_64-linux/Cabal-3.4.1.0/build/interpreter/interpreter interpreter
 
 clean:
-	${CABAL} clean
+	${STACK} clean
 	rm interpreter
