@@ -1,12 +1,12 @@
 module Evaluator.Utils.Utils where
 
-import Control.Monad.State
 import Control.Monad.Except
+import Control.Monad.State
+import Evaluator.Domain.Builtins
 import Evaluator.Domain.Context
 import Evaluator.Domain.Environment
-import Evaluator.Domain.Monads
 import Evaluator.Domain.Error
-import Evaluator.Domain.Builtins
+import Evaluator.Domain.Monads
 import Syntax.AbsTortex
 import Prelude
 
@@ -18,11 +18,11 @@ evalIntStmt f name = do
   modify $ updateValue name newValue
   return Dummy
 
-keepEnvAndEval :: EvaluatorT -> EvaluatorT
-keepEnvAndEval exec = do
+evalRollbackEnv :: EvaluatorT -> EvaluatorT
+evalRollbackEnv evaluator = do
   ctx <- get
   let env = environment ctx
-  _ <- exec
+  _ <- evaluator
   modify $ insertEnvironment env
   return Dummy
 
@@ -58,7 +58,10 @@ insertArgsToCtx (PArgVar name _, _, location) = do
   modify $ insertLocation name location
   pure Dummy
 
-evalIfBuiltin :: Evaluator a => Ident -> [a] -> EvaluatorT -> EvaluatorT
-evalIfBuiltin name expressions evaluator = do
-  argumentVals <- mapM eval expressions
-  if isBuiltin name then evalBuiltin name argumentVals else evaluator
+evalWithBuiltinCheck :: Evaluator a => Ident -> [a] -> EvaluatorT -> EvaluatorT
+evalWithBuiltinCheck name expressions evaluator = do
+  if isBuiltin name
+    then do
+      argumentVals <- mapM eval expressions
+      evalBuiltin name argumentVals
+    else evaluator

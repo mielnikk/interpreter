@@ -18,7 +18,7 @@ data Value
 instance Show Value where
   show (VInt val) = show val
   show (VBool val) = show val
-  show (VString val) = show val
+  show (VString val) = val
   show _ = ""
 
 mapVInt :: (Integer -> Integer) -> Value -> Value

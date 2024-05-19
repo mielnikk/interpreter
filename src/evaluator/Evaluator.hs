@@ -31,11 +31,10 @@ instance Evaluator Init where
     pure Dummy
 
 instance Evaluator Block where
-  eval (SBlock statements) =
-    do
-      mapM_ eval statements
-      pure Dummy
-      `catchError` handleFlowControlError
+  eval (SBlock statements) = do
+    mapM_ eval statements
+    pure Dummy
+    `catchError` handleFlowControlError
     where
       handleFlowControlError :: EvaluationError -> EvaluatorT
       handleFlowControlError (ReturnCalled value) = pure value
@@ -44,9 +43,9 @@ instance Evaluator Block where
 instance Evaluator Stmt where
   eval SEmpty = pure VVoid
  
-  eval (SBStmt block) = eval block
+  eval (SBStmt block) = evalRollbackEnv $ eval block
  
-  eval (SInit si) = keepEnvAndEval $ eval si
+  eval (SInit si) = eval si
  
   eval (SAss name expression) = do
     expressionVal <- eval expression
@@ -68,15 +67,15 @@ instance Evaluator Stmt where
  
   eval (SCond expression trueBlock) = do
     expressionVal <- eval expression
-    keepEnvAndEval $ if isTrue expressionVal then eval trueBlock else return Dummy
+    evalRollbackEnv $ if isTrue expressionVal then eval trueBlock else return Dummy
  
   eval (SCondElse expression trueBlock falseBlock) = do
     expressionVal <- eval expression
-    keepEnvAndEval $ if isTrue expressionVal then eval trueBlock else eval falseBlock
+    evalRollbackEnv $ if isTrue expressionVal then eval trueBlock else eval falseBlock
  
   eval while@(SWhile expression block) = do
     expressionVal <- eval expression
-    keepEnvAndEval $
+    evalRollbackEnv $
       if isTrue expressionVal then eval block >> eval while else return Dummy
  
   eval (SExp expression) = eval expression
@@ -120,7 +119,7 @@ instance Evaluator Expr where
 
   eval (ELambda arguments _ block) = gets (VFun arguments block . environment)
 
-  eval (EApp name expressions) = evalIfBuiltin name expressions $ do 
+  eval (EApp name expressions) = evalWithBuiltinCheck name expressions $ do 
     ctx <- get
     argumentVals <- mapM eval expressions
     argumentLocs <- mapM getArgumentLocation expressions
