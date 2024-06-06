@@ -30,7 +30,7 @@ instance TypeChecker Init where
     put $ updateEnvironmentTypes functionEnv argumentsWithTypes
     checkType (Just returnType) block
     blockEnv <- get
-    TCU.assertOrThrow (returnStatementOccuredFlag blockEnv) MissingReturnStatementError
+    TCU.assertOrThrow (returnStatementOccuredFlag blockEnv) (MissingReturnStatementError name)
     put functionEnv
     
   checkType _ (IInit name variableType expression) = do
@@ -43,7 +43,7 @@ instance TypeChecker Block where
     mapM_ (checkType expectedType) stmts
 
 instance TypeChecker Stmt where
-  checkType _ SEmpty = pure ()
+  checkType _ SEmpty = return ()
 
   checkType expected (SBStmt block) = do
     env <- get
@@ -55,7 +55,7 @@ instance TypeChecker Stmt where
   checkType _ (SAss name expression) = do
     env <- get
     case lookupIdent name env of
-      (Just variableType) -> TCU.assertExpressionTypeOrThrow env variableType expression -- TODO: zmienić typ wyjątku
+      (Just variableType) -> TCU.assertExpressionTypeOrThrow env variableType expression 
       Nothing -> throwError $ UnknownIdentifierError name
 
   checkType _ (SIncr name) = do
@@ -104,49 +104,49 @@ instance TypeReader Expr where
   readType (EVar name) =
     TRU.getExistingSymbolOrThrow name (UnknownIdentifierError name)
 
-  readType (ELitInt _) = pure TInt
+  readType (ELitInt _) = return TInt
 
-  readType ELitTrue = pure TBool
+  readType ELitTrue = return TBool
 
-  readType ELitFalse = pure TBool
+  readType ELitFalse = return TBool
 
-  readType (EString _) = pure TStr
+  readType (EString _) = return TStr
 
   readType (ENeg expression) = do
     TRU.assertTypeOrThrow TInt expression
-    pure TInt
+    return TInt
 
   readType (ENot expression) = do
     TRU.assertTypeOrThrow TBool expression
-    pure TBool
+    return TBool
 
   readType (EApp name expressions) = do
     symbolType <- TRU.getExistingSymbolOrThrow name (UnknownIdentifierError name)
     case symbolType of
       (TFun argumentsTypes returnType) -> do
         TRU.assertTypesListOrThrow argumentsTypes expressions
-        pure returnType
+        return returnType
       _ -> throwError InvalidApplicationError
 
   readType (EMul e1 _ e2) = do
     TRU.assertTypesOrThrow TInt e1 e2
-    pure TInt
+    return TInt
 
   readType (EAdd e1 _ e2) = do
     TRU.assertTypesOrThrow TInt e1 e2
-    pure TInt
+    return TInt
 
   readType (ERel e1 _ e2) = do
     TRU.assertTypesOrThrow TInt e1 e2
-    pure TBool
+    return TBool
 
   readType (EAnd e1 e2) = do
     TRU.assertTypesOrThrow TBool e1 e2
-    pure TBool
+    return TBool
 
   readType (EOr e1 e2) = do
     TRU.assertTypesOrThrow TBool e1 e2
-    pure TBool
+    return TBool
 
   readType (ELambda arguments returnType block) = do
     TRU.assertValidArgumentsOrThrow arguments
@@ -160,4 +160,4 @@ instance TypeReader Expr where
         let result = runExcept (runStateT (TCU.assertValidLambdaBodyOrThrow returnType' block') env)
         case result of
           Left e -> throwError e
-          Right _ -> pure functionType
+          Right _ -> return functionType
