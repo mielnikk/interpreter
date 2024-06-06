@@ -24,7 +24,7 @@ assertTypesListOrThrow expectedTypes expressions
   | otherwise = forM_ (zip expectedTypes expressions) (uncurry assertTypeOrThrow)
 
 assertOrThrow :: Bool -> TypeError -> EmptyTypeReaderT'
-assertOrThrow True _ = return ()
+assertOrThrow True _ = pure ()
 assertOrThrow False e = throwError e
 
 getExistingSymbolOrThrow :: Ident -> TypeError -> TypeReaderT

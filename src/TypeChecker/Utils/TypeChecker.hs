@@ -37,7 +37,7 @@ assertType env expectedType expr =
   runExcept $ runReaderT (TR.assertTypeOrThrow expectedType expr) env
 
 transformReaderResult :: Either TypeError () -> TypeCheckerT
-transformReaderResult (Right _) = return ()
+transformReaderResult (Right _) = pure ()
 transformReaderResult (Left e) = throwError e
 
 assertValidArgumentsOrThrow :: [Arg] -> TypeCheckerT
@@ -68,7 +68,7 @@ assertTypesOrThrow :: Eq a => a -> a -> TypeError -> TypeCheckerT
 assertTypesOrThrow expected actual = assertOrThrow ((==) expected actual)
 
 assertOrThrow :: Bool -> TypeError -> TypeCheckerT
-assertOrThrow True _ = return ()
+assertOrThrow True _ = pure ()
 assertOrThrow False e = throwError e
 
 assertValidLambdaBodyOrThrow :: TypeChecker a => Type -> a -> TypeCheckerT
