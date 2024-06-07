@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module TypeChecker.Utils.TypeChecker
   ( assertUniqueInitsOrThrow,
     assertValidArgumentsOrThrow,
@@ -11,7 +13,6 @@ module TypeChecker.Utils.TypeChecker
 where
 
 import Control.Monad.Except
-import Control.Monad.Reader
 import Control.Monad.State
 import qualified Data.Set as Set
 import Syntax.AbsTortex
@@ -27,18 +28,10 @@ assertVariableTypeOrThrow expectedType name = do
     Just variableType -> assertTypesOrThrow expectedType variableType (InvalidTypeError expectedType variableType)
     Nothing -> throwError $ UnknownIdentifierError name
 
-assertExpressionTypeOrThrow :: TypeReader a => Environment -> Type -> a -> TypeCheckerT
-assertExpressionTypeOrThrow env expectedType expr = do
-  let typeCheckResult = assertType env expectedType expr
-  transformReaderResult typeCheckResult
-
-assertType :: TypeReader a => Environment -> Type -> a -> Either TypeError ()
-assertType env expectedType expr =
-  runExcept $ runReaderT (TR.assertTypeOrThrow expectedType expr) env
-
-transformReaderResult :: Either TypeError () -> TypeCheckerT
-transformReaderResult (Right _) = pure ()
-transformReaderResult (Left e) = throwError e
+assertExpressionTypeOrThrow :: TypeReader a => Type -> a -> TypeCheckerT
+assertExpressionTypeOrThrow expectedType expr = do
+  _ <- TR.assertTypeOrThrow expectedType expr
+  return ()
 
 assertValidArgumentsOrThrow :: [Arg] -> TypeCheckerT
 assertValidArgumentsOrThrow args = either throwError return $ checkUniqueArguments args
@@ -71,8 +64,8 @@ assertOrThrow :: Bool -> TypeError -> TypeCheckerT
 assertOrThrow True _ = pure ()
 assertOrThrow False e = throwError e
 
-assertValidLambdaBodyOrThrow :: TypeChecker a => Type -> a -> TypeCheckerT
+assertValidLambdaBodyOrThrow :: TypeChecker a => Type -> a -> TypeCheckerT' ()
 assertValidLambdaBodyOrThrow expectedType body = do
-  checkType (Just expectedType) body
+  _ <- checkType (Just expectedType) body
   env <- get
   assertOrThrow (returnStatementOccuredFlag env) MissingReturnStatementError

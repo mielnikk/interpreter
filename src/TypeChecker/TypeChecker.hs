@@ -1,7 +1,6 @@
 module TypeChecker.TypeChecker where
 
 import Control.Monad.Except
-import Control.Monad.Reader
 import Control.Monad.State
 import Syntax.AbsTortex
 import qualified Syntax.Utils as SU
@@ -35,7 +34,7 @@ instance TypeChecker Init where
     
   checkType _ (IInit name variableType expression) = do
     env <- get
-    TCU.assertExpressionTypeOrThrow env variableType expression
+    TCU.assertExpressionTypeOrThrow variableType expression
     put $ updateEnvironmentType env (name, variableType)
 
 instance TypeChecker Block where
@@ -43,7 +42,7 @@ instance TypeChecker Block where
     mapM_ (checkType expectedType) stmts
 
 instance TypeChecker Stmt where
-  checkType _ SEmpty = pure ()
+  checkType _ SEmpty = return ()
 
   checkType expected (SBStmt block) = do
     env <- get
@@ -151,12 +150,12 @@ instance TypeReader Expr where
   readType (ELambda arguments returnType block) = do
     TRU.assertValidArgumentsOrThrow arguments
     let argumentsWithTypes = SU.getArgumentsWithTypes arguments
-    local (`updateEnvironmentTypes` argumentsWithTypes) (checkLambda arguments returnType block)
+    withStateT (`updateEnvironmentTypes` argumentsWithTypes) (checkLambda arguments returnType block)
     where
       checkLambda :: TypeChecker a => [Arg] -> Type -> a -> TypeReaderT
       checkLambda arguments' returnType' block' = do
         let functionType = SU.calculateFunctionType arguments' returnType'
-        env <- ask
+        env <- get
         let result = runExcept (runStateT (TCU.assertValidLambdaBodyOrThrow returnType' block') env)
         case result of
           Left e -> throwError e
