@@ -32,13 +32,12 @@ instance Evaluator Init where
 
 instance Evaluator Block where
   eval (SBlock statements) = do
-    mapM_ eval statements
+    mapM_  evalIfNotReturned statements
     pure Dummy
-    `catchError` handleFlowControlError
-    where
-      handleFlowControlError :: EvaluationError -> EvaluatorT
-      handleFlowControlError (ReturnCalled value) = pure value
-      handleFlowControlError other = throwError other
+    where 
+      evalIfNotReturned stmt = do 
+        ctx <- get
+        if Context.returnFlag ctx then return Dummy else eval stmt
 
 instance Evaluator Stmt where
   eval SEmpty = pure VVoid
@@ -60,10 +59,12 @@ instance Evaluator Stmt where
  
   eval (SRet expression) = do
     expressionVal <- eval expression
-    throwError (ReturnCalled expressionVal)
- 
+    modify $ Context.setReturned expressionVal
+    return Dummy
+
   eval SRetVoid = do
-    throwError (ReturnCalled VVoid)
+    modify $ Context.setReturned Dummy
+    return Dummy
  
   eval (SCond expression trueBlock) = do
     expressionVal <- eval expression
@@ -134,7 +135,10 @@ instance Evaluator Expr where
 
     mapM_ insertArgsToCtx (zip3 functionArgs argumentVals argumentLocs)
 
-    returnValue <- eval functionBlock
+    _ <- eval functionBlock
+    newCtx <- get
+    let returnValue = Context.getReturnValue newCtx
 
+    modify $ Context.setReturnFlag False
     modify $ Context.insertEnvironment env
-    pure returnValue
+    return returnValue
