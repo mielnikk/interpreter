@@ -54,7 +54,7 @@ instance TypeChecker Stmt where
   checkType _ (SAss name expression) = do
     env <- get
     case lookupIdent name env of
-      (Just variableType) -> TCU.assertExpressionTypeOrThrow env variableType expression -- TODO: zmienić typ wyjątku
+      (Just variableType) -> TCU.assertExpressionTypeOrThrow variableType expression -- TODO: zmienić typ wyjątku
       Nothing -> throwError $ UnknownIdentifierError name
 
   checkType _ (SIncr name) = do
@@ -65,7 +65,7 @@ instance TypeChecker Stmt where
 
   checkType (Just expectedType) (SRet expression) = do
     env <- get
-    TCU.assertExpressionTypeOrThrow env expectedType expression
+    TCU.assertExpressionTypeOrThrow expectedType expression
     put $ updateEnvironmentReturnFlag env True
 
   checkType Nothing (SRet _) = do
@@ -80,24 +80,20 @@ instance TypeChecker Stmt where
     throwError MissingReturnStatementError
 
   checkType expected (SCond expression trueBlock) = do
-    env <- get
-    TCU.assertExpressionTypeOrThrow env TBool expression
+    TCU.assertExpressionTypeOrThrow TBool expression
     checkType expected trueBlock
 
   checkType expected (SCondElse expression trueBlock falseBlock) = do
-    env <- get
-    TCU.assertExpressionTypeOrThrow env TBool expression
+    TCU.assertExpressionTypeOrThrow TBool expression
     checkType expected trueBlock
     checkType expected falseBlock
 
   checkType expected (SWhile expression block) = do
-    env <- get
-    TCU.assertExpressionTypeOrThrow env TBool expression
+    TCU.assertExpressionTypeOrThrow TBool expression
     checkType expected block
 
   checkType _ (SExp expression) = do
-    env <- get
-    TCU.assertExpressionTypeOrThrow env TVoid expression
+    TCU.assertExpressionTypeOrThrow TVoid expression
 
 instance TypeReader Expr where
   readType (EVar name) =
