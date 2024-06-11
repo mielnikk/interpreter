@@ -3,15 +3,12 @@ module Evaluator.Evaluator where
 import Control.Monad.Except
 import Control.Monad.State
 import qualified Evaluator.Domain.Context as Context
-import Evaluator.Domain.Value 
 import Evaluator.Domain.Error
 import Evaluator.Domain.Monads
+import Evaluator.Domain.Value 
 import Evaluator.Utils.Utils
 import Syntax.AbsTortex
 import Syntax.Utils (getOperation)
-
-runEvaluate :: Program -> IO (Either EvaluationError Value)
-runEvaluate program = runExceptT $ evalStateT (eval program) Context.empty
 
 instance Evaluator Program where
   eval (PProgram inits) = do
@@ -23,24 +20,24 @@ instance Evaluator Init where
     ctx <- get
     let functionType = VFun arguments block (Context.environment ctx)
     modify $ Context.insertValue name functionType
-    pure Dummy
+    return Dummy
  
   eval (IInit name _ expression) = do
     exprVal <- eval expression
     modify $ Context.insertValue name exprVal
-    pure Dummy
+    return Dummy
 
 instance Evaluator Block where
   eval (SBlock statements) = do
-    mapM_  evalIfNotReturned statements
-    pure Dummy
-    where 
-      evalIfNotReturned stmt = do 
+    mapM_ evalIfNotReturned statements
+    return Dummy
+    where
+      evalIfNotReturned stmt = do
         ctx <- get
         if Context.returnFlag ctx then return Dummy else eval stmt
 
 instance Evaluator Stmt where
-  eval SEmpty = pure VVoid
+  eval SEmpty = return VVoid
  
   eval (SBStmt block) = evalRollbackEnv $ eval block
  
@@ -63,7 +60,7 @@ instance Evaluator Stmt where
     return Dummy
 
   eval SRetVoid = do
-    modify $ Context.setReturned Dummy
+    modify $ Context.setReturned VVoid
     return Dummy
  
   eval (SCond expression trueBlock) = do
@@ -83,21 +80,21 @@ instance Evaluator Stmt where
 instance Evaluator Expr where
   eval (EVar name) = gets $ Context.getValue name
  
-  eval (ELitInt value) = pure $ VInt value
+  eval (ELitInt value) = return $ VInt value
  
-  eval ELitTrue = pure $ VBool True
+  eval ELitTrue = return $ VBool True
  
-  eval ELitFalse = pure $ VBool False
+  eval ELitFalse = return $ VBool False
  
-  eval (EString value) = pure $ VString value
+  eval (EString value) = return $ VString value
  
   eval (ENeg expression) = do
     expressionVal <- eval expression
-    pure $ mapVInt ((-1) *) expressionVal
+    return $ mapVInt ((-1) *) expressionVal
  
   eval (ENot expression) = do
     expressionVal <- eval expression
-    pure $ mapVBool not expressionVal
+    return $ mapVBool not expressionVal
  
   eval (EMul e1 Mod e2) = evalIntExpr mod e1 e2
  
@@ -132,10 +129,12 @@ instance Evaluator Expr where
 
     modify $ Context.insertEnvironment functionEnv
     modify $ Context.insertValue name function
+    modify $ Context.setReturnFlag False
 
     mapM_ insertArgsToCtx (zip3 functionArgs argumentVals argumentLocs)
 
     _ <- eval functionBlock
+    
     newCtx <- get
     let returnValue = Context.getReturnValue newCtx
 

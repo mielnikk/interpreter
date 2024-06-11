@@ -48,7 +48,7 @@ returnLabel :: Ident
 returnLabel = Ident "_return"
 
 setReturned :: Value -> Context -> Context
-setReturned value = setReturnFlag True . insertValue returnLabel value
+setReturned value = setReturnFlag True . updateValue returnLabel value
 
 getReturnValue :: Context -> Value
 getReturnValue = getValue returnLabel

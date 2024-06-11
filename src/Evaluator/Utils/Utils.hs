@@ -31,19 +31,19 @@ evalIntExpr :: Evaluator a => (Integer -> Integer -> Integer) -> a -> a -> Evalu
 evalIntExpr f e1 e2 = do
   val1 <- eval e1
   val2 <- eval e2
-  pure $ mapVInts f val1 val2
+  return $ mapVInts f val1 val2
 
 evalBoolExpr :: Evaluator a => (Bool -> Bool -> Bool) -> a -> a -> EvaluatorT
 evalBoolExpr f e1 e2 = do
   val1 <- eval e1
   val2 <- eval e2
-  pure $ mapVBools f val1 val2
+  return $ mapVBools f val1 val2
 
 evalIntBoolExpr :: Evaluator a => (Integer -> Integer -> Bool) -> a -> a -> EvaluatorT
 evalIntBoolExpr f e1 e2 = do
   val1 <- eval e1
   val2 <- eval e2
-  pure $ mapVIntsToVBool f val1 val2
+  return $ mapVIntsToVBool f val1 val2
 
 getArgumentLocation :: Expr -> EvaluatorT' Location
 getArgumentLocation (EVar name) = gets $ Context.getLocation name
@@ -52,12 +52,12 @@ getArgumentLocation _ = pure (-1)
 insertArgsToCtx :: (Arg, Value, Location) -> EvaluatorT
 insertArgsToCtx (PArg name _, value, _) = do
   modify $ Context.insertValue name value
-  pure Dummy
+  return Dummy
 insertArgsToCtx (PArgVar _ _, _, -1) =
   throwError InvalidReferenceFunctionApplication
 insertArgsToCtx (PArgVar name _, _, location) = do
   modify $ Context.insertLocation name location
-  pure Dummy
+  return Dummy
 
 evalWithBuiltinCheck :: Evaluator a => Ident -> [a] -> EvaluatorT -> EvaluatorT
 evalWithBuiltinCheck name expressions evaluator = do

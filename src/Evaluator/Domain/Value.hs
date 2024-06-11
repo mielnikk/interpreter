@@ -15,7 +15,9 @@ instance Show Value where
   show (VInt val) = show val
   show (VBool val) = show val
   show (VString val) = val
-  show _ = ""
+  show VFun {} = "Fun"
+  show VVoid = "Void"
+  show Dummy = "Dummy"
 
 mapVInt :: (Integer -> Integer) -> Value -> Value
 mapVInt f (VInt val) = VInt $ f val
