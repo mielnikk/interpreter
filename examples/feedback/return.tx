@@ -1,0 +1,13 @@
+fun f(x : Int) : Int {
+    if (true) {
+       printInt(1);
+    } else {
+       printInt(0);
+       return 2;
+    }
+}
+
+fun main() : Void {
+  printInt(f(2));
+  return;
+}

@@ -1,0 +1,20 @@
+fun funVar(var x : Int) : Int{
+  x = x + 1;
+  return x+101;
+}
+
+fun funVal(f : (Int) -> Int) : Int{
+  var z : Int = 110;
+  printInt(f(z));
+  printInt(f(z+z)); // jak się odkomentuje tę linię, to nie działają kolejne print-y :)
+  printInt(z);
+  return z;
+}
+
+
+fun main(): Void{
+    var z : Int = 1;
+    printInt(funVal(funVar));
+    printInt(funVar(z));
+    return;
+}

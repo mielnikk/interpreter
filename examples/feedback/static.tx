@@ -1,0 +1,22 @@
+var a: Int = 1;
+
+fun test(): Void {
+    printInt(a);     //2
+    a++;                  // a globalne
+    printInt(a);     //3
+    return;
+}
+
+fun f(): Void {
+    var a: Int = 10;
+    test();
+    printInt(a);     //4  // a lokalne
+    return;
+}
+
+fun main(): Void {
+    printInt(a);     //1  // a globalne
+    f();
+    printInt(a);     //5
+    return;
+}

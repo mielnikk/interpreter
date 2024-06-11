@@ -1,0 +1,25 @@
+fun makeCounter(init: Int) : (Int) -> Int {
+    var val : Int = init;
+
+    fun f(x:Int) : Int{
+        printInt(val); // trochę działa - drukuje puste :)
+        val = val + x;
+        printInt(val); // nie działa
+        return val;
+        // return x; // z tym zamiast tego powyżej - działa
+    }
+    return f;
+
+/*
+    return lambda (x:Int) : Int => {
+        val = val + x;
+        return val;
+    };
+*/
+}
+
+fun main():Void{
+    var counter : (Int) -> Int = makeCounter(0);
+    printInt(counter(1));
+    return;
+}

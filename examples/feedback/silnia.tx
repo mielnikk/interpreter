@@ -1,0 +1,17 @@
+fun silnia (x : Int) : Int {
+    printInt(x);
+    var result: Int = 0;
+    if (x > 0) {
+       return x * silnia(x - 1);
+    } else {
+        return 1;
+    };
+}
+
+fun main() : Void{
+    var res : Int = silnia(10);
+    printInt(res); // tu wolna linia
+    res = res + 1;
+    printInt(res); // a tu Non-exhaustive...
+    return;
+}
