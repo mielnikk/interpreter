@@ -1,5 +1,3 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleContexts #-}
 module TypeChecker.Domain.Monads where
 
 import Control.Monad.Except
@@ -20,5 +18,4 @@ type TypeCheckerT' a = StateT Environment (Except TypeError) a
 type TypeCheckerT = TypeCheckerT' ()
 
 class TypeChecker a where
-  checkType :: Maybe Type -> a -> TypeCheckerT 
-  
+  checkType :: Maybe Type -> a -> TypeCheckerT

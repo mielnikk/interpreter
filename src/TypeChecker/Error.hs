@@ -17,11 +17,11 @@ instance Show TypeError where
 
     show MismatchedTypesError = "Mismatched types"
 
-    show (UnknownIdentifierError name) = "Unknown identifier: " ++ (show name)
+    show (UnknownIdentifierError name) = "Unknown identifier: " ++ show name
 
-    show (InvalidTypeError expected actual) = "Invalid type - expected: " ++ (show expected) ++ ", actual: " ++ (show actual)
+    show (InvalidTypeError expected actual) = "Invalid type - expected: " ++ show expected ++ ", actual: " ++ show actual
 
-    show MissingReturnStatementError = "Missing return statement"
+    show MissingReturnStatementError = "Return statement is not defined in all execution branches"
 
     show (InvalidReturnTypeError actual expected) = "Invalid return type - expected: " ++ show expected ++ ", actual: " ++ show actual
 

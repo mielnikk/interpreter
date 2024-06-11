@@ -9,7 +9,7 @@ import Syntax.AbsTortex
 data Environment = Environment {types :: Map Ident Type, returnStatementOccuredFlag :: Bool}
 
 emptyEnvironment :: Environment
-emptyEnvironment = Environment { types = Map.fromList builtinMethodsSignatures, returnStatementOccuredFlag = False }
+emptyEnvironment = Environment {types = Map.fromList builtinMethodsSignatures, returnStatementOccuredFlag = False}
 
 builtinMethodsSignatures :: [(Ident, Type)]
 builtinMethodsSignatures =
@@ -24,8 +24,8 @@ updateEnvironmentTypes = foldl updateEnvironmentType
 updateEnvironmentType :: Environment -> (Ident, Type) -> Environment
 updateEnvironmentType Environment {..} (ident, t) = Environment {types = Map.insert ident t types, returnStatementOccuredFlag = returnStatementOccuredFlag}
 
-updateEnvironmentReturnFlag :: Environment -> Bool -> Environment
-updateEnvironmentReturnFlag Environment {..} flag = Environment {types = types, returnStatementOccuredFlag = flag}
+updateEnvironmentReturnFlag :: Bool -> Environment -> Environment
+updateEnvironmentReturnFlag flag Environment {..} = Environment {types = types, returnStatementOccuredFlag = flag}
 
 lookupIdent :: Ident -> Environment -> Maybe Type
 lookupIdent ident environment = Map.lookup ident (types environment)
