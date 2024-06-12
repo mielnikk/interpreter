@@ -57,11 +57,11 @@ library
     -- Modules exported by the library.
     exposed-modules:  
         Interpreter
-        Lexer.LexTortex
-        Lexer.ParTortex
+        Syntax.LexTortex
+        Syntax.ParTortex
         Syntax.AbsTortex
-        Syntax.Utils
         TypeChecker.Domain.Environment
+        TypeChecker.Domain.RawType
         TypeChecker.Error
         TypeChecker.TypeChecker
         TypeChecker.Utils

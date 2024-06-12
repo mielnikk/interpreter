@@ -1,5 +1,7 @@
 module TypeChecker.Domain.RawType where
 
+import Syntax.AbsTortex
+
 data RawType
   = RTInt
   | RTString
@@ -24,12 +26,12 @@ instance Show RawType where
 
 fromType :: Type -> RawType
 fromType (TInt _) = RTInt
-fromType (TString _) = RTString
+fromType (TStr _) = RTString
 fromType (TBool _) = RTBool
 fromType (TVoid _) = RTVoid
 fromType (TFun _ argumentsTypes returnType) = RTFun rawArgumentsTypes rawReturnType
   where
-    rawArgumentsTypes = map fromType argumentsTypes
+    rawArgumentsTypes = reduceVoidToEmptyList $ map fromType argumentsTypes
     rawReturnType = fromType returnType
 
 getArgumentType :: Arg -> RawType
@@ -40,8 +42,12 @@ getArgumentsWithTypes :: [Arg] -> [(Ident, RawType)]
 getArgumentsWithTypes = map getArgumentWithType
 
 getArgumentWithType :: Arg -> (Ident, RawType)
-getArgumentWithType (PArg ident argType) = (ident, fromType argType)
-getArgumentWithType (PArgVar ident argType) = (ident, fromType argType)
+getArgumentWithType (PArg _ ident argType) = (ident, fromType argType)
+getArgumentWithType (PArgVar _ ident argType) = (ident, fromType argType)
 
 calculateFunctionType :: [Arg] -> Type -> RawType
-calculateFunctionType args = TFun (map getArgumentType args)
+calculateFunctionType args = RTFun (reduceVoidToEmptyList (map getArgumentType args)) . fromType 
+
+reduceVoidToEmptyList :: [RawType] -> [RawType]
+reduceVoidToEmptyList [RTVoid] = []
+reduceVoidToEmptyList x = x

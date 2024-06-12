@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 module Evaluator.Evaluator where
 
 import Control.Monad.Except
@@ -8,27 +9,26 @@ import Evaluator.Domain.Monads
 import Evaluator.Domain.Value 
 import Evaluator.Utils.Utils
 import Syntax.AbsTortex
-import Syntax.Utils (getOperation)
 
 instance Evaluator Program where
-  eval (PProgram inits) = do
+  eval (PProgram _ inits) = do
     mapM_ eval inits
-    eval $ EApp (Ident "main") []
+    eval $ EApp BNFC'NoPosition (Ident "main") []
 
 instance Evaluator Init where
-  eval (IFnDef name arguments _ block) = do
+  eval (IFnDef _ name arguments _ block) = do
     ctx <- get
     let functionType = VFun arguments block (Context.environment ctx)
     modify $ Context.insertValue name functionType
     return Dummy
  
-  eval (IInit name _ expression) = do
+  eval (IInit _ name _ expression) = do
     exprVal <- eval expression
     modify $ Context.insertValue name exprVal
     return Dummy
 
 instance Evaluator Block where
-  eval (SBlock statements) = do
+  eval (SBlock _ statements) = do
     mapM_ evalIfNotReturned statements
     return Dummy
     where
@@ -37,86 +37,86 @@ instance Evaluator Block where
         if Context.returnFlag ctx then return Dummy else eval stmt
 
 instance Evaluator Stmt where
-  eval SEmpty = return VVoid
+  eval (SEmpty _) = return VVoid
  
-  eval (SBStmt block) = evalRollbackEnv $ eval block
+  eval (SBStmt _ block) = evalRollbackEnv $ eval block
  
-  eval (SInit si) = eval si
+  eval (SInit _ si) = eval si
  
-  eval (SAss name expression) = do
+  eval (SAss _ name expression) = do
     expressionVal <- eval expression
     modify $ Context.updateValue name expressionVal
     return Dummy
  
-  eval (SIncr name) = do
+  eval (SIncr _ name) = do
     evalIntStmt (1 +) name
  
-  eval (SDecr name) = do
+  eval (SDecr _ name) = do
     evalIntStmt (\x -> x - 1) name
  
-  eval (SRet expression) = do
+  eval (SRet _ expression) = do
     expressionVal <- eval expression
     modify $ Context.setReturned expressionVal
     return Dummy
 
-  eval SRetVoid = do
+  eval (SRetVoid _) = do
     modify $ Context.setReturned VVoid
     return Dummy
  
-  eval (SCond expression trueBlock) = do
+  eval (SCond _ expression trueBlock) = do
     expressionVal <- eval expression
     evalRollbackEnv $ if isTrue expressionVal then eval trueBlock else return Dummy
  
-  eval (SCondElse expression trueBlock falseBlock) = do
+  eval (SCondElse _ expression trueBlock falseBlock) = do
     expressionVal <- eval expression
     evalRollbackEnv $ if isTrue expressionVal then eval trueBlock else eval falseBlock
  
-  eval while@(SWhile expression block) = do
+  eval while@(SWhile _ expression block) = do
     expressionVal <- eval expression
     evalRollbackEnv $ if isTrue expressionVal then eval block >> eval while else return Dummy
  
-  eval (SExp expression) = eval expression
+  eval (SExp _ expression) = eval expression
 
 instance Evaluator Expr where
-  eval (EVar name) = gets $ Context.getValue name
+  eval (EVar _ name) = gets $ Context.getValue name
  
-  eval (ELitInt value) = return $ VInt value
+  eval (ELitInt _ value) = return $ VInt value
  
-  eval ELitTrue = return $ VBool True
+  eval (ELitTrue _) = return $ VBool True
  
-  eval ELitFalse = return $ VBool False
+  eval (ELitFalse _) = return $ VBool False
  
-  eval (EString value) = return $ VString value
+  eval (EString _ value) = return $ VString value
  
-  eval (ENeg expression) = do
+  eval (ENeg _ expression) = do
     expressionVal <- eval expression
     return $ mapVInt ((-1) *) expressionVal
  
-  eval (ENot expression) = do
+  eval (ENot _ expression) = do
     expressionVal <- eval expression
     return $ mapVBool not expressionVal
  
-  eval (EMul e1 Mod e2) = evalIntExpr mod e1 e2
+  eval (EMul _ e1 (Mod _) e2) = evalIntExpr mod e1 e2
  
-  eval (EMul e1 Times e2) = evalIntExpr (*) e1 e2
+  eval (EMul _ e1 (Times _) e2) = evalIntExpr (*) e1 e2
  
-  eval (EMul e1 Div e2) = do
+  eval (EMul _ e1 (Div _) e2) = do
     val2 <- eval e2
     if isIntEqual val2 0 then throwError DivideByZeroError else evalIntExpr quot e1 e2
  
-  eval (EAdd e1 Plus e2) = evalIntExpr (+) e1 e2
+  eval (EAdd _ e1 (Plus _) e2) = evalIntExpr (+) e1 e2
  
-  eval (EAdd e1 Minus e2) = evalIntExpr (-) e1 e2
+  eval (EAdd _ e1 (Minus _) e2) = evalIntExpr (-) e1 e2
  
-  eval (ERel e1 op e2) = evalIntBoolExpr (getOperation op) e1 e2
+  eval (ERel _ e1 op e2) = evalIntBoolExpr (getOperation op) e1 e2
  
-  eval (EAnd e1 e2) = evalBoolExpr (&&) e1 e2
+  eval (EAnd _ e1 e2) = evalBoolExpr (&&) e1 e2
  
-  eval (EOr e1 e2) = evalBoolExpr (||) e1 e2
+  eval (EOr _ e1 e2) = evalBoolExpr (||) e1 e2
 
-  eval (ELambda arguments _ block) = gets (VFun arguments block . Context.environment)
+  eval (ELambda _ arguments _ block) = gets (VFun arguments block . Context.environment)
 
-  eval (EApp name expressions) = evalWithBuiltinCheck name expressions $ do 
+  eval (EApp _ name expressions) = evalWithBuiltinCheck name expressions $ do 
     ctx <- get
     argumentVals <- mapM eval expressions
     argumentLocs <- mapM getArgumentLocation expressions

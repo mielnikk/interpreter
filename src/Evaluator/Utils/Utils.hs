@@ -46,16 +46,16 @@ evalIntBoolExpr f e1 e2 = do
   return $ mapVIntsToVBool f val1 val2
 
 getArgumentLocation :: Expr -> EvaluatorT' Location
-getArgumentLocation (EVar name) = gets $ Context.getLocation name
+getArgumentLocation (EVar _ name) = gets $ Context.getLocation name
 getArgumentLocation _ = pure (-1)
 
 insertArgsToCtx :: (Arg, Value, Location) -> EvaluatorT
-insertArgsToCtx (PArg name _, value, _) = do
+insertArgsToCtx (PArg _ name _, value, _) = do
   modify $ Context.insertValue name value
   return Dummy
-insertArgsToCtx (PArgVar _ _, _, -1) =
+insertArgsToCtx (PArgVar _ _ _, _, -1) =
   throwError InvalidReferenceFunctionApplication
-insertArgsToCtx (PArgVar name _, _, location) = do
+insertArgsToCtx (PArgVar _ name _, _, location) = do
   modify $ Context.insertLocation name location
   return Dummy
 
@@ -66,3 +66,11 @@ evalWithBuiltinCheck name expressions evaluator = do
       argumentVals <- mapM eval expressions
       evalBuiltin name argumentVals
     else evaluator
+
+getOperation :: Ord a => RelOp -> (a -> a -> Bool)
+getOperation (LTH _) = (<)
+getOperation (LE _) = (<=)
+getOperation (GTH _) = (>)
+getOperation (GE _) = (>=)
+getOperation (EQU _) = (==)
+getOperation (NE _) = (/=)

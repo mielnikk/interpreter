@@ -1,162 +1,168 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 module TypeChecker.TypeChecker where
 
 import Control.Monad.Except
 import Control.Monad.State
 import Syntax.AbsTortex
-import qualified Syntax.Utils as SU
 import TypeChecker.Domain.Environment
 import TypeChecker.Domain.Monads
+import TypeChecker.Domain.RawType
 import TypeChecker.Error
 import qualified TypeChecker.Utils as Utils
 import Prelude
 
 instance TypeChecker Program where
-  checkType _ (PProgram inits) = do
+  checkType _ (PProgram _ inits) = do
     Utils.assertUniqueInits inits
     mapM_ (checkType Nothing) inits
-    checkType Nothing (SExp (EApp (Ident "main") []))
+    checkType Nothing (SExp BNFC'NoPosition (EApp BNFC'NoPosition (Ident "main") []))
 
 instance TypeChecker Init where
-  checkType _ (IFnDef name arguments returnType block) = do
+  checkType _ (IFnDef position name arguments returnType block) = do
     Utils.assertValidArguments arguments
     env <- get
-    let functionType = SU.calculateFunctionType arguments returnType
+    let functionType = calculateFunctionType arguments returnType
     put $ updateEnvironmentType env (name, functionType)
     functionEnv <- get
-    let argumentsWithTypes = SU.getArgumentsWithTypes arguments
+    let argumentsWithTypes = getArgumentsWithTypes arguments
 
     put $ updateEnvironmentTypes functionEnv argumentsWithTypes
 
-    checkType (Just returnType) block
+    checkType (Just $ fromType returnType) block
     blockEnv <- get
-    Utils.assertOrThrow (returnStatementOccuredFlag blockEnv) MissingReturnStatementError
+    Utils.assertOrThrow (returnStatementOccuredFlag blockEnv) (MissingReturnStatementError position)
     put functionEnv
-    
-  checkType _ (IInit name variableType expression) = do
+
+  checkType _ (IInit _ name variableType expression) = do
     env <- get
-    Utils.assertExpressionType variableType expression
-    put $ updateEnvironmentType env (name, variableType)
+    let rawType = fromType variableType
+    Utils.assertExpressionType rawType expression
+    put $ updateEnvironmentType env (name, rawType)
 
 instance TypeChecker Block where
-  checkType expectedType (SBlock stmts) = do
+  checkType expectedType (SBlock _ stmts) = do
     mapM_ (checkType expectedType) stmts
 
 instance TypeChecker Stmt where
-  checkType _ SEmpty = return ()
-
-  checkType expected (SBStmt block) = do
+  checkType _ (SEmpty _) = return ()
+  
+  checkType expected (SBStmt _ block) = do
     env <- get
+    returnDefinedBefore <- gets returnStatementOccuredFlag
     checkType expected block
-    put env
-
-  checkType expected (SInit i) = checkType expected i
-
-  checkType _ (SAss name expression) = do
+    returnNested <- gets returnStatementOccuredFlag
+    put env 
+    modify $ updateEnvironmentReturnFlag (returnDefinedBefore || returnNested)
+  
+  checkType expected (SInit _ i) = checkType expected i
+  
+  checkType _ (SAss position name expression) = do
     env <- get
     case lookupIdent name env of
-      (Just variableType) -> Utils.assertExpressionType variableType expression 
-      Nothing -> throwError $ UnknownIdentifierError name
-
-  checkType _ (SIncr name) = do
-    Utils.assertVariableType TInt name
-
-  checkType _ (SDecr name) = do
-    Utils.assertVariableType TInt name
-
-  checkType (Just expectedType) (SRet expression) = do
+      (Just variableType) -> Utils.assertExpressionType variableType expression
+      Nothing -> throwError $ UnknownIdentifierError position name
+  
+  checkType _ (SIncr position name) = do
+    Utils.assertVariableType RTInt name position
+  
+  checkType _ (SDecr position name) = do
+    Utils.assertVariableType RTInt name position
+  
+  checkType (Just expectedType) (SRet _ expression) = do
     Utils.assertExpressionType expectedType expression
     modify $ updateEnvironmentReturnFlag True
-
-  checkType Nothing (SRet _) = do
-    throwError MissingReturnStatementError
-
-  checkType (Just expectedType) SRetVoid = do
-    Utils.assertTypesOrThrow expectedType TVoid (InvalidReturnTypeError expectedType TVoid)
+  
+  checkType Nothing (SRet position _) = do
+    throwError $ MissingReturnStatementError position
+  
+  checkType (Just expectedType) (SRetVoid position) = do
+    Utils.assertTypesOrThrow expectedType RTVoid (InvalidReturnTypeError position expectedType RTVoid)
     modify $ updateEnvironmentReturnFlag True
-
-  checkType Nothing SRetVoid =
-    throwError MissingReturnStatementError
-
-  checkType expected (SCond expression trueBlock) = do
-    Utils.assertExpressionType TBool expression
+  
+  checkType Nothing (SRetVoid position) =
+    throwError $ MissingReturnStatementError position
+  
+  checkType expected (SCond _ expression trueBlock) = do
+    Utils.assertExpressionType RTBool expression
     returnDefinedBefore <- gets returnStatementOccuredFlag
     checkType expected trueBlock
     modify $ updateEnvironmentReturnFlag returnDefinedBefore
-
-  checkType expected (SCondElse expression trueBlock falseBlock) = do
-    Utils.assertExpressionType TBool expression
+  
+  checkType expected (SCondElse _ expression trueBlock falseBlock) = do
+    Utils.assertExpressionType RTBool expression
     returnDefinedBefore <- gets returnStatementOccuredFlag
     withStateT (updateEnvironmentReturnFlag False) (checkType expected trueBlock)
     returnTrueBranch <- gets returnStatementOccuredFlag
     withStateT (updateEnvironmentReturnFlag False) (checkType expected falseBlock)
     returnFalseBranch <- gets returnStatementOccuredFlag
     modify $ updateEnvironmentReturnFlag (returnDefinedBefore || (returnTrueBranch && returnFalseBranch))
-
-  checkType expected (SWhile expression block) = do
-    Utils.assertExpressionType TBool expression
+  
+  checkType expected (SWhile _ expression block) = do
+    Utils.assertExpressionType RTBool expression
     checkType expected block
-
-  checkType _ (SExp expression) = do
-    Utils.assertExpressionType TVoid expression
+  
+  checkType _ (SExp _ expression) = do
+    Utils.assertExpressionType RTVoid expression
 
 instance TypeReader Expr where
-  readType (EVar name) =
-    Utils.getExistingSymbolOrThrow name (UnknownIdentifierError name)
-
-  readType (ELitInt _) = return TInt
-
-  readType ELitTrue = return TBool
-
-  readType ELitFalse = return TBool
-
-  readType (EString _) = return TStr
-
-  readType (ENeg expression) = do
-    Utils.assertExpressionType TInt expression
-    return TInt
-
-  readType (ENot expression) = do
-    Utils.assertExpressionType TBool expression
-    return TBool
-
-  readType (EApp name expressions) = do
-    symbolType <- Utils.getExistingSymbolOrThrow name (UnknownIdentifierError name)
+  readType (EVar position name) =
+    Utils.getExistingSymbolOrThrow name (UnknownIdentifierError position name)
+  
+  readType (ELitInt _ _) = return RTInt
+  
+  readType (ELitTrue _) = return RTBool
+  
+  readType (ELitFalse _) = return RTBool
+  
+  readType (EString _ _) = return RTString
+  
+  readType (ENeg _ expression) = do
+    Utils.assertExpressionType RTInt expression
+    return RTInt
+  
+  readType (ENot _ expression) = do
+    Utils.assertExpressionType RTBool expression
+    return RTBool
+  
+  readType (EApp position name expressions) = do
+    symbolType <- Utils.getExistingSymbolOrThrow name (UnknownIdentifierError position name)
     case symbolType of
-      (TFun argumentsTypes returnType) -> do
-        Utils.assertTypesListOrThrow argumentsTypes expressions
+      (RTFun argumentsTypes returnType) -> do
+        _ <- if (length argumentsTypes /= length expressions) then throwError (MissingArgumentError position) else return ()
+        Utils.assertExpressionListTypes argumentsTypes expressions
         return returnType
-      _ -> throwError (InvalidApplicationError name)
-
-  readType (EMul e1 _ e2) = do
-    Utils.assertExpressionTypesOrThrow TInt e1 e2
-    return TInt
-
-  readType (EAdd e1 _ e2) = do
-    Utils.assertExpressionTypesOrThrow TInt e1 e2
-    return TInt
-
-  readType (ERel e1 _ e2) = do
-    Utils.assertExpressionTypesOrThrow TInt e1 e2
-    return TBool
-
-  readType (EAnd e1 e2) = do
-    Utils.assertExpressionTypesOrThrow TBool e1 e2
-    return TBool
-
-  readType (EOr e1 e2) = do
-    Utils.assertExpressionTypesOrThrow TBool e1 e2
-    return TBool
-
-  readType (ELambda arguments returnType block) = do
+      _ -> throwError (InvalidApplicationError position name)
+  
+  readType (EMul _ e1 _ e2) = do
+    Utils.assertExpressionsType RTInt e1 e2
+    return RTInt
+  
+  readType (EAdd _ e1 _ e2) = do
+    Utils.assertExpressionsType RTInt e1 e2
+    return RTInt
+  
+  readType (ERel _ e1 _ e2) = do
+    Utils.assertExpressionsType RTInt e1 e2
+    return RTBool
+  
+  readType (EAnd _ e1 e2) = do
+    Utils.assertExpressionsType RTBool e1 e2
+    return RTBool
+  
+  readType (EOr _ e1 e2) = do
+    Utils.assertExpressionsType RTBool e1 e2
+    return RTBool
+  
+  readType lambda@(ELambda _ arguments _ _) = do
     Utils.assertValidArguments arguments
-    let argumentsWithTypes = SU.getArgumentsWithTypes arguments
-    withStateT (`updateEnvironmentTypes` argumentsWithTypes) (checkLambda arguments returnType block)
+    let argumentsWithTypes = getArgumentsWithTypes arguments
+    withStateT (`updateEnvironmentTypes` argumentsWithTypes) (checkLambda lambda)
     where
-      checkLambda :: TypeChecker a => [Arg] -> Type -> a -> TypeReaderT
-      checkLambda arguments' returnType' block' = do
-        let functionType = SU.calculateFunctionType arguments' returnType'
+      checkLambda :: Expr -> TypeReaderT
+      checkLambda (ELambda position arguments' returnType block) = do
+        let functionType = calculateFunctionType arguments' returnType
+        _ <- checkType (Just $ fromType returnType) block
         env <- get
-        let result = runExcept (runStateT (Utils.assertValidLambdaBody returnType' block') env)
-        case result of
-          Left e -> throwError e
-          Right _ -> return functionType
+        Utils.assertOrThrow (returnStatementOccuredFlag env) (MissingReturnStatementError position)
+        return functionType

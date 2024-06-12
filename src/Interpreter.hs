@@ -5,8 +5,8 @@ import Control.Monad.State
 import qualified Evaluator.Domain.Context as Context
 import Evaluator.Domain.Monads
 import Evaluator.Evaluator ()
-import Lexer.ParTortex (myLexer, pProgram)
 import Syntax.AbsTortex
+import Syntax.ParTortex (myLexer, pProgram)
 import System.Exit (exitFailure, exitSuccess)
 import System.IO (hPrint, stderr)
 import TypeChecker.Domain.Environment
