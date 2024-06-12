@@ -7,19 +7,18 @@ import qualified Syntax.Utils as SU
 import TypeChecker.Domain.Environment
 import TypeChecker.Domain.Monads
 import TypeChecker.Error
-import qualified TypeChecker.Utils.TypeChecker as TCU
-import qualified TypeChecker.Utils.TypeReader as TRU
+import qualified TypeChecker.Utils as Utils
 import Prelude
 
 instance TypeChecker Program where
   checkType _ (PProgram inits) = do
-    TCU.assertUniqueInitsOrThrow inits
+    Utils.assertUniqueInits inits
     mapM_ (checkType Nothing) inits
     checkType Nothing (SExp (EApp (Ident "main") []))
 
 instance TypeChecker Init where
   checkType _ (IFnDef name arguments returnType block) = do
-    TCU.assertValidArgumentsOrThrow arguments
+    Utils.assertValidArguments arguments
     env <- get
     let functionType = SU.calculateFunctionType arguments returnType
     put $ updateEnvironmentType env (name, functionType)
@@ -30,12 +29,12 @@ instance TypeChecker Init where
 
     checkType (Just returnType) block
     blockEnv <- get
-    TCU.assertOrThrow (returnStatementOccuredFlag blockEnv) MissingReturnStatementError
+    Utils.assertOrThrow (returnStatementOccuredFlag blockEnv) MissingReturnStatementError
     put functionEnv
     
   checkType _ (IInit name variableType expression) = do
     env <- get
-    TCU.assertExpressionTypeOrThrow variableType expression
+    Utils.assertExpressionType variableType expression
     put $ updateEnvironmentType env (name, variableType)
 
 instance TypeChecker Block where
@@ -55,37 +54,37 @@ instance TypeChecker Stmt where
   checkType _ (SAss name expression) = do
     env <- get
     case lookupIdent name env of
-      (Just variableType) -> TCU.assertExpressionTypeOrThrow variableType expression 
+      (Just variableType) -> Utils.assertExpressionType variableType expression 
       Nothing -> throwError $ UnknownIdentifierError name
 
   checkType _ (SIncr name) = do
-    TCU.assertVariableTypeOrThrow TInt name
+    Utils.assertVariableType TInt name
 
   checkType _ (SDecr name) = do
-    TCU.assertVariableTypeOrThrow TInt name
+    Utils.assertVariableType TInt name
 
   checkType (Just expectedType) (SRet expression) = do
-    TCU.assertExpressionTypeOrThrow expectedType expression
+    Utils.assertExpressionType expectedType expression
     modify $ updateEnvironmentReturnFlag True
 
   checkType Nothing (SRet _) = do
     throwError MissingReturnStatementError
 
   checkType (Just expectedType) SRetVoid = do
-    TCU.assertTypesOrThrow expectedType TVoid (InvalidReturnTypeError expectedType TVoid)
+    Utils.assertTypesOrThrow expectedType TVoid (InvalidReturnTypeError expectedType TVoid)
     modify $ updateEnvironmentReturnFlag True
 
   checkType Nothing SRetVoid =
     throwError MissingReturnStatementError
 
   checkType expected (SCond expression trueBlock) = do
-    TCU.assertExpressionTypeOrThrow TBool expression
+    Utils.assertExpressionType TBool expression
     returnDefinedBefore <- gets returnStatementOccuredFlag
     checkType expected trueBlock
     modify $ updateEnvironmentReturnFlag returnDefinedBefore
 
   checkType expected (SCondElse expression trueBlock falseBlock) = do
-    TCU.assertExpressionTypeOrThrow TBool expression
+    Utils.assertExpressionType TBool expression
     returnDefinedBefore <- gets returnStatementOccuredFlag
     withStateT (updateEnvironmentReturnFlag False) (checkType expected trueBlock)
     returnTrueBranch <- gets returnStatementOccuredFlag
@@ -94,15 +93,15 @@ instance TypeChecker Stmt where
     modify $ updateEnvironmentReturnFlag (returnDefinedBefore || (returnTrueBranch && returnFalseBranch))
 
   checkType expected (SWhile expression block) = do
-    TCU.assertExpressionTypeOrThrow TBool expression
+    Utils.assertExpressionType TBool expression
     checkType expected block
 
   checkType _ (SExp expression) = do
-    TCU.assertExpressionTypeOrThrow TVoid expression
+    Utils.assertExpressionType TVoid expression
 
 instance TypeReader Expr where
   readType (EVar name) =
-    TRU.getExistingSymbolOrThrow name (UnknownIdentifierError name)
+    Utils.getExistingSymbolOrThrow name (UnknownIdentifierError name)
 
   readType (ELitInt _) = return TInt
 
@@ -113,43 +112,43 @@ instance TypeReader Expr where
   readType (EString _) = return TStr
 
   readType (ENeg expression) = do
-    TRU.assertTypeOrThrow TInt expression
+    Utils.assertExpressionType TInt expression
     return TInt
 
   readType (ENot expression) = do
-    TRU.assertTypeOrThrow TBool expression
+    Utils.assertExpressionType TBool expression
     return TBool
 
   readType (EApp name expressions) = do
-    symbolType <- TRU.getExistingSymbolOrThrow name (UnknownIdentifierError name)
+    symbolType <- Utils.getExistingSymbolOrThrow name (UnknownIdentifierError name)
     case symbolType of
       (TFun argumentsTypes returnType) -> do
-        TRU.assertTypesListOrThrow argumentsTypes expressions
+        Utils.assertTypesListOrThrow argumentsTypes expressions
         return returnType
-      _ -> throwError InvalidApplicationError
+      _ -> throwError (InvalidApplicationError name)
 
   readType (EMul e1 _ e2) = do
-    TRU.assertTypesOrThrow TInt e1 e2
+    Utils.assertExpressionTypesOrThrow TInt e1 e2
     return TInt
 
   readType (EAdd e1 _ e2) = do
-    TRU.assertTypesOrThrow TInt e1 e2
+    Utils.assertExpressionTypesOrThrow TInt e1 e2
     return TInt
 
   readType (ERel e1 _ e2) = do
-    TRU.assertTypesOrThrow TInt e1 e2
+    Utils.assertExpressionTypesOrThrow TInt e1 e2
     return TBool
 
   readType (EAnd e1 e2) = do
-    TRU.assertTypesOrThrow TBool e1 e2
+    Utils.assertExpressionTypesOrThrow TBool e1 e2
     return TBool
 
   readType (EOr e1 e2) = do
-    TRU.assertTypesOrThrow TBool e1 e2
+    Utils.assertExpressionTypesOrThrow TBool e1 e2
     return TBool
 
   readType (ELambda arguments returnType block) = do
-    TRU.assertValidArgumentsOrThrow arguments
+    Utils.assertValidArguments arguments
     let argumentsWithTypes = SU.getArgumentsWithTypes arguments
     withStateT (`updateEnvironmentTypes` argumentsWithTypes) (checkLambda arguments returnType block)
     where
@@ -157,7 +156,7 @@ instance TypeReader Expr where
       checkLambda arguments' returnType' block' = do
         let functionType = SU.calculateFunctionType arguments' returnType'
         env <- get
-        let result = runExcept (runStateT (TCU.assertValidLambdaBodyOrThrow returnType' block') env)
+        let result = runExcept (runStateT (Utils.assertValidLambdaBody returnType' block') env)
         case result of
           Left e -> throwError e
           Right _ -> return functionType

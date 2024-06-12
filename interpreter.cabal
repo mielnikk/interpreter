@@ -64,8 +64,7 @@ library
         TypeChecker.Domain.Environment
         TypeChecker.Error
         TypeChecker.TypeChecker
-        TypeChecker.Utils.TypeChecker
-        TypeChecker.Utils.TypeReader
+        TypeChecker.Utils
         TypeChecker.Domain.Monads
         Evaluator.Domain.Environment
         Evaluator.Domain.Context

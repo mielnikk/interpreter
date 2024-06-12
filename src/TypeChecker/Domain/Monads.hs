@@ -6,16 +6,12 @@ import Syntax.AbsTortex
 import TypeChecker.Domain.Environment
 import TypeChecker.Error
 
-type EmptyTypeReaderT' = TypeCheckerT' ()
+type TypeCheckerT a = StateT Environment (Except TypeError) a
 
-type TypeReaderT = TypeCheckerT' Type
+type TypeReaderT = TypeCheckerT Type
 
 class TypeReader a where
-  readType :: a -> TypeReaderT
-
-type TypeCheckerT' a = StateT Environment (Except TypeError) a
-
-type TypeCheckerT = TypeCheckerT' ()
+  readType :: a -> TypeCheckerT Type
 
 class TypeChecker a where
-  checkType :: Maybe Type -> a -> TypeCheckerT
+  checkType :: Maybe Type -> a -> TypeCheckerT ()

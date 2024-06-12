@@ -3,17 +3,18 @@ module TypeChecker.Error where
 import Syntax.AbsTortex
 
 data TypeError 
-    = DuplicatedNameError 
+    = DuplicatedNameError Ident
     | MismatchedTypesError 
     | UnknownIdentifierError Ident 
     | InvalidTypeError Type Type 
     | MissingReturnStatementError 
     | InvalidReturnTypeError Type Type
     | MissingArgumentError
-    | InvalidApplicationError
+    | InvalidApplicationError Ident
+    | WrongExpressionType Type Type
 
 instance Show TypeError where
-    show DuplicatedNameError = "Duplicated name"
+    show (DuplicatedNameError name) = "Duplicated name: " ++ show name
 
     show MismatchedTypesError = "Mismatched types"
 
@@ -27,4 +28,6 @@ instance Show TypeError where
 
     show MissingArgumentError = "Missing argument in function call"
 
-    show InvalidApplicationError = "Cannot apply"
+    show (InvalidApplicationError name) = "Type of " ++ show name ++ " does not allow for application"
+
+    show (WrongExpressionType expected actual) = "Expression should be of type " ++ show expected ++ " but is " ++ show actual
