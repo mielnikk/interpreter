@@ -1,4 +1,4 @@
-module Evaluator.Utils.Utils where
+module Evaluator.Utils where
 
 import Control.Monad.Except
 import Control.Monad.State
@@ -53,18 +53,18 @@ insertArgsToCtx :: (Arg, Value, Location) -> EvaluatorT
 insertArgsToCtx (PArg _ name _, value, _) = do
   modify $ Context.insertValue name value
   return Dummy
-insertArgsToCtx (PArgVar _ _ _, _, -1) =
-  throwError InvalidReferenceFunctionApplication
+insertArgsToCtx (PArgVar position _ _, _, -1) =
+  throwError $ InvalidReferenceFunctionApplication position
 insertArgsToCtx (PArgVar _ name _, _, location) = do
   modify $ Context.insertLocation name location
   return Dummy
 
-evalWithBuiltinCheck :: Evaluator a => Ident -> [a] -> EvaluatorT -> EvaluatorT
-evalWithBuiltinCheck name expressions evaluator = do
+evalWithBuiltinCheck :: Evaluator a => Ident -> [a] -> BNFC'Position -> EvaluatorT -> EvaluatorT
+evalWithBuiltinCheck name expressions position evaluator = do
   if isBuiltin name
     then do
       argumentVals <- mapM eval expressions
-      evalBuiltin name argumentVals
+      evalBuiltin name argumentVals position
     else evaluator
 
 getOperation :: Ord a => RelOp -> (a -> a -> Bool)

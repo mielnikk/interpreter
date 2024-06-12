@@ -73,7 +73,7 @@ library
         Evaluator.Domain.Error
         Evaluator.Domain.Monads
         Evaluator.Domain.Value
-        Evaluator.Utils.Utils
+        Evaluator.Utils
         Evaluator.Evaluator
 
     -- Modules included in this library but not exported.

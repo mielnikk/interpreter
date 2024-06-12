@@ -7,7 +7,7 @@ import qualified Evaluator.Domain.Context as Context
 import Evaluator.Domain.Error
 import Evaluator.Domain.Monads
 import Evaluator.Domain.Value 
-import Evaluator.Utils.Utils
+import Evaluator.Utils
 import Syntax.AbsTortex
 
 instance Evaluator Program where
@@ -100,9 +100,9 @@ instance Evaluator Expr where
  
   eval (EMul _ e1 (Times _) e2) = evalIntExpr (*) e1 e2
  
-  eval (EMul _ e1 (Div _) e2) = do
+  eval (EMul position e1 (Div _) e2) = do
     val2 <- eval e2
-    if isIntEqual val2 0 then throwError DivideByZeroError else evalIntExpr quot e1 e2
+    if isIntEqual val2 0 then throwError (DivideByZeroError position) else evalIntExpr quot e1 e2
  
   eval (EAdd _ e1 (Plus _) e2) = evalIntExpr (+) e1 e2
  
@@ -116,7 +116,7 @@ instance Evaluator Expr where
 
   eval (ELambda _ arguments _ block) = gets (VFun arguments block . Context.environment)
 
-  eval (EApp _ name expressions) = evalWithBuiltinCheck name expressions $ do 
+  eval (EApp position name expressions) = evalWithBuiltinCheck name expressions position $ do 
     ctx <- get
     argumentVals <- mapM eval expressions
     argumentLocs <- mapM getArgumentLocation expressions

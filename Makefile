@@ -2,7 +2,7 @@ STACK = stack
 
 all:
 	${STACK} build 
-	mv .stack-work/dist/x86_64-linux/Cabal-3.4.1.0/build/interpreter/interpreter interpreter
+	mv $(find . -name interpreter -type f) interpreter
 
 clean:
 	${STACK} clean

@@ -13,8 +13,8 @@ builtinFunctions = ["printInt", "printBool", "printString"]
 isBuiltin :: Ident -> Bool
 isBuiltin (Ident name) = name `elem` builtinFunctions
 
-evalBuiltin :: Ident -> [Value] -> EvaluatorT
-evalBuiltin _ [value] = do
+evalBuiltin :: Ident -> [Value] -> BNFC'Position -> EvaluatorT
+evalBuiltin _ [value] _ = do
   liftIO $ putStrLn (show value)
   pure Dummy
-evalBuiltin _ _ = throwError UnknownError
+evalBuiltin _ _ position = throwError $ UnknownError position

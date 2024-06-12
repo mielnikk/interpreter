@@ -1,0 +1,24 @@
+fun voidArgFun(): Void {
+    printString("No arguments");
+    return;
+}
+
+fun nonVoidArgFun(x: String): Void {
+    printString(x);
+    return;
+}
+
+fun ignoreResultFun(): Int {
+    printString("Ignore my result");
+    return 1337;
+}
+
+fun main() : Void{
+    voidArgFun();
+
+    nonVoidArgFun("Some argument");
+
+    ignoreResultFun();
+
+    return;
+}

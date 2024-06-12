@@ -1,0 +1,44 @@
+fun nestedReturnVoid() : Void {
+    {
+        {
+            return;
+        }
+    }
+}
+
+fun nestedReturnValue() : String {
+    {
+        {
+            return "I come from a nested block";
+        }
+    }
+}
+
+fun returnFromIf(): String {
+    if (true) {
+        return "I come from the true branch";
+    } else {
+        return ":(";
+    }
+}
+
+fun returnInLambda(): Void {
+    var l: (Void) -> Void = lambda () : Void => { return; };
+    l();
+    printString("That return did nothing to me");
+    return;
+}
+
+fun main() : Void{
+    nestedReturnVoid();
+    printString("Nested return worked!");
+
+    var x: String = nestedReturnValue();
+    printString(x);
+
+    printString(returnFromIf());
+
+    returnInLambda();
+
+    return;
+}
