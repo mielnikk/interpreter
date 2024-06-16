@@ -1,8 +1,0 @@
-fun main(): Void {
-  if(False) {
-    printString("True");
-  } else
-    printString("False");
-
-  return;
-}

@@ -7,7 +7,6 @@ import TypeChecker.Domain.RawType
 
 data TypeError' a
   = DuplicatedNameError a Ident
-  | MismatchedTypesError a
   | UnknownIdentifierError a Ident
   | InvalidTypeError a RawType RawType
   | MissingReturnStatementError a
@@ -21,8 +20,6 @@ type TypeError = TypeError' BNFC'Position
 instance Show TypeError where
   show (DuplicatedNameError pos name) =
     errorAt pos ++ "Duplicated name: " ++ show name
-  show (MismatchedTypesError pos) =
-    errorAt pos ++ "Mismatched types"
   show (UnknownIdentifierError pos name) =
     errorAt pos ++ "Unknown identifier: " ++ show name
   show (InvalidTypeError pos expected actual) =

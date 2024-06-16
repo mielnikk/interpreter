@@ -1,9 +1,0 @@
-fun main(): Void {
-  var a: Int = 11;
-  a = ;
-
-  var b: Bool = true;
-  b False;
-
-  return;
-}

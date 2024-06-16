@@ -1,0 +1,8 @@
+fun illegalFun(x: Int): Int {
+    return;
+}
+
+fun main(): Void {
+    illegalFun(2);
+    return;
+}

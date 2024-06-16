@@ -1,9 +1,0 @@
-fun main(): Void {
-  printInt(test());
-
-  return;
-}
-
-test(): Int {
-  return 22;
-}

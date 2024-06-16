@@ -1,0 +1,7 @@
+var x: Int = 4;
+var x: String = "Hello";
+
+fun main(): Void {
+    
+    return;
+}

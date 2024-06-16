@@ -1,7 +1,0 @@
-fun main(): Void {
-  while(true)
-    printString("infinity");
-
-
-  return;
-}

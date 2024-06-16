@@ -1,0 +1,6 @@
+fun main(): Void {
+    var x: Int = 4;
+    var y: String = "Hello";
+    var z: Int = x + y;
+    return;
+}

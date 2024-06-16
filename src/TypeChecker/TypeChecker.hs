@@ -102,7 +102,9 @@ instance TypeChecker Stmt where
     Utils.assertExpressionType RTBool expression
     checkType expected block
   
-  checkType _ (SExp _ _) = return ()
+  checkType _ (SExp _ expression) = do
+    _ <- readType expression
+    return ()
 
 instance TypeReader Expr where
   readType (EVar position name) =

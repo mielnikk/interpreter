@@ -2,7 +2,7 @@ STACK = stack
 
 all:
 	${STACK} build 
-	mv ${shell find .stack-work -name interpreter -type f | head -n 1} interpreter
+	mv ${shell find . -name interpreter -type f | head -n 1} interpreter
 
 clean:
 	${STACK} clean

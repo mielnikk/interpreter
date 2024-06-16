@@ -1,0 +1,5 @@
+fun main(): Void {
+    var x: Int = 4;
+    var y: Int = G;
+    return;
+}
